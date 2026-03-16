@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integrated Platform — Labassa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7F8FC;--surface:#fff;--border:#E3E6F0;--text-primary:#0C1224;--text-secondary:#4A5270;--text-muted:#8890A8;--accent:#0F6E56;--accent-light:#E1F5EE;--purple:#534AB7;--purple-light:#EEEDFE;--amber:#854F0B;--amber-light:#FAEEDA;--coral:#993C1D;--coral-light:#FAECE7;--blue:#185FA5;--blue-light:#E6F1FB;--pink:#993556;--pink-light:#FBEAF0;--gray-light:#F1EFE8;--shadow:0 1px 3px rgba(12,18,36,.07),0 4px 12px rgba(12,18,36,.04)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--bg);color:var(--text-primary);font-size:14px;line-height:1.6}
+a{color:var(--accent);text-decoration:none}
+.topnav{position:sticky;top:0;z-index:100;height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px}
+.topnav-brand{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.topnav-links{display:flex;gap:2px;flex:1;margin:0 24px;overflow-x:auto;scrollbar-width:none}
+.topnav-links::-webkit-scrollbar{display:none}
+.topnav-links a{font-size:12px;color:var(--text-secondary);white-space:nowrap;padding:6px 12px;border-radius:6px;transition:all .15s;text-decoration:none}
+.topnav-links a:hover{background:var(--bg);color:var(--text-primary)}
+.topnav-links a.active{background:var(--gray-light);color:var(--text-primary);font-weight:500}
+.page{max-width:1100px;margin:0 auto;padding:32px 28px 64px}
+.page-title{font-size:22px;font-weight:600;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--text-muted);margin-bottom:24px}
+.section-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+.layer-arrow{display:flex;justify-content:center;align-items:center;padding:10px 0;gap:10px;color:var(--text-muted);font-size:11px}
+.layer-arrow::before,.layer-arrow::after{content:'';flex:1;height:1px;background:var(--border)}
+.layer{margin-bottom:4px}
+
+.grid-infra{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(max-width:800px){.grid-3{grid-template-columns:1fr 1fr}.grid-infra{grid-template-columns:1fr}}
+@media(max-width:500px){.grid-3,.grid-2,.grid-infra{grid-template-columns:1fr}}
+
+.comp-card{border-radius:10px;padding:12px 14px;cursor:pointer;border:1px solid transparent;transition:all .15s;position:relative}
+.comp-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.comp-card.active{outline:2px solid var(--text-primary);outline-offset:1px}
+.comp-num{font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;letter-spacing:.04em;opacity:.6;margin-bottom:3px}
+.comp-name{font-size:13px;font-weight:600;margin-bottom:3px;line-height:1.3}
+.comp-desc{font-size:11px;opacity:.72;line-height:1.4}
+.phase-badge{position:absolute;top:10px;right:10px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em}
+
+.c-purple{background:var(--purple-light);border-color:#AFA9EC;color:var(--purple)}
+.c-teal{background:var(--accent-light);border-color:#5DCAA5;color:var(--accent)}
+.c-coral{background:var(--coral-light);border-color:#F0997B;color:var(--coral)}
+.c-blue{background:var(--blue-light);border-color:#85B7EB;color:var(--blue)}
+.c-amber{background:var(--amber-light);border-color:#EF9F27;color:var(--amber)}
+.c-pink{background:var(--pink-light);border-color:#ED93B1;color:var(--pink)}
+.c-gray{background:var(--gray-light);border-color:#B4B2A9;color:#444441}
+
+.infra-card{border-radius:8px;padding:10px 14px;border:1px solid;font-size:12px;font-weight:600;text-align:center;cursor:pointer;transition:all .15s}
+.infra-card:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.infra-card.active{outline:2px solid var(--text-primary);outline-offset:1px}
+
+.detail-panel{margin-top:14px;border-radius:10px;padding:16px 18px;border:1px solid var(--border);background:var(--surface);display:none}
+.detail-panel.show{display:block}
+.det-title{font-size:14px;font-weight:600;margin-bottom:12px}
+.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media(max-width:600px){.detail-grid{grid-template-columns:1fr}}
+.det-item{background:var(--bg);border-radius:6px;padding:10px 12px;border:1px solid var(--border)}
+.det-name{font-size:11px;font-weight:600;margin-bottom:2px}
+.det-val{font-size:11px;color:var(--text-secondary);line-height:1.4}
+.uses{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.uses-label{font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
+.use-tag{display:inline-block;font-size:10px;padding:3px 9px;border-radius:10px;background:var(--bg);border:1px solid var(--border);margin:2px 3px 2px 0;color:var(--text-secondary)}
+
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.leg{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-secondary)}
+.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.source-bar{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:12px;color:var(--text-secondary);font-family:'IBM Plex Mono',monospace;line-height:2;margin-bottom:4px;text-align:center}
+.footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-brand"><div class="dot"></div>Labassa</div>
+  <div class="topnav-links">
+    <a href="index.html">Overview</a>
+    <a href="02-loan-engine.html">Loan engine</a>
+    <a href="03-investor-reporting.html">Investor reporting</a>
+    <a href="04-treasury.html">Treasury dashboard</a>
+    <a href="05-platform.html" class="active">All components</a>
+    <a href="06-data-lineage.html">Data lineage</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-title">Integrated platform — all components</div>
+  <div class="page-sub">Click any component to see technology stack, key features and integration points.</div>
+
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:var(--purple)"></div>Loan &amp; calc — Priority 1</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--accent)"></div>Investor reporting — Priority 2</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--coral)"></div>Fund admin &amp; compliance — Phase 2</div>
+    <div class="leg"><div class="leg-dot" style="background:#B4B2A9"></div>Infrastructure &amp; knowledge</div>
+  </div>
+
+  <!-- DATA SOURCES -->
+  <div class="layer">
+    <div class="section-label">External data sources</div>
+    <div class="source-bar">Loan system (Loanworks/SAMS) &nbsp;·&nbsp; Bank feeds (API/CSV) &nbsp;·&nbsp; Valuation feeds &nbsp;·&nbsp; BBSY/AONIA market data &nbsp;·&nbsp; Fund register &nbsp;·&nbsp; Manual overrides (Excel upload)</div>
+  </div>
+
+  <div class="layer-arrow">daily ETL · Airflow orchestration · dbt staging layer</div>
+
+  <!-- CORE PLATFORM -->
+  <div class="layer">
+    <div class="section-label">Core platform — phase 1</div>
+    <div class="grid-3" style="margin-bottom:10px">
+      <div class="comp-card c-purple" onclick="show('loan')">
+        <div class="phase-badge" style="background:var(--purple);color:#EEEDFE">P1</div>
+        <div class="comp-num">01</div>
+        <div class="comp-name">Loan calc engine</div>
+        <div class="comp-desc">Accruals · Waterfall · Positions · Covenants</div>
+      </div>
+      <div class="comp-card c-teal" onclick="show('inv')">
+        <div class="phase-badge" style="background:var(--accent);color:#E1F5EE">P2</div>
+        <div class="comp-num">02</div>
+        <div class="comp-name">Investor reporting</div>
+        <div class="comp-desc">Statements · NAV · IRR · Distributions</div>
+      </div>
+      <div class="comp-card c-blue" onclick="show('treas')">
+        <div class="phase-badge" style="background:var(--blue);color:#E6F1FB">P2</div>
+        <div class="comp-num">03</div>
+        <div class="comp-name">Treasury dashboard</div>
+        <div class="comp-desc">Liquidity · Limits · Covenants · Hedging</div>
+      </div>
+    </div>
+    <div id="det-core" class="detail-panel"></div>
+  </div>
+
+  <!-- PHASE 2 PLATFORM -->
+  <div class="layer">
+    <div class="section-label">Fund admin, compliance &amp; operations — phase 2</div>
+    <div class="grid-3">
+      <div class="comp-card c-coral" onclick="show('fund')">
+        <div class="comp-num">04</div>
+        <div class="comp-name">Fund administration</div>
+        <div class="comp-desc">KYC · Unit registry · Onboarding · Unitisation</div>
+      </div>
+      <div class="comp-card c-amber" onclick="show('asic')">
+        <div class="comp-num">05</div>
+        <div class="comp-name">ASIC compliance</div>
+        <div class="comp-desc">RG45 · RG133 · AML/CTF · Audit trail</div>
+      </div>
+      <div class="comp-card c-pink" onclick="show('kyc')">
+        <div class="comp-num">06</div>
+        <div class="comp-name">KYC &amp; onboarding</div>
+        <div class="comp-desc">Digital AML · ID verify · CDD · Monitoring</div>
+      </div>
+    </div>
+    <div id="det-phase2" class="detail-panel"></div>
+  </div>
+
+  <!-- DELIVERY LAYER -->
+  <div class="layer" style="margin-top:10px">
+    <div class="section-label">Delivery &amp; knowledge layer</div>
+    <div class="grid-3">
+      <div class="comp-card c-teal" onclick="show('portal')">
+        <div class="comp-num">07</div>
+        <div class="comp-name">Investor portal</div>
+        <div class="comp-desc">Self-serve · MFA login · Statement download</div>
+      </div>
+      <div class="comp-card c-gray" onclick="show('share')">
+        <div class="comp-num">08</div>
+        <div class="comp-name">SharePoint intranet</div>
+        <div class="comp-desc">Internal comms · File store · Team sites</div>
+      </div>
+      <div class="comp-card c-gray" onclick="show('conf')">
+        <div class="comp-num">09</div>
+        <div class="comp-name">Confluence / SOP</div>
+        <div class="comp-desc">Process docs · Runbooks · Version control</div>
+      </div>
+    </div>
+    <div id="det-delivery" class="detail-panel"></div>
+  </div>
+
+  <!-- INFRASTRUCTURE -->
+  <div class="layer" style="margin-top:10px">
+    <div class="section-label">Shared infrastructure</div>
+    <div class="grid-infra">
+      <div class="infra-card c-gray" onclick="show('dw')">Data warehouse · Snowflake / Azure Synapse</div>
+      <div class="infra-card c-gray" onclick="show('sec')">Security &amp; IAM · Azure AD · MFA · RBAC</div>
+      <div class="infra-card c-gray" onclick="show('cloud')">Cloud · Azure / AWS · DevOps · Audit log</div>
+    </div>
+    <div id="det-infra" class="detail-panel"></div>
+  </div>
+
+  <div class="footer">
+    <a href="index.html">← Back to overview</a>
+    <a href="06-data-lineage.html">Data lineage →</a>
+  </div>
+</div>
+
+<script>
+const comps={
+  loan:{panel:'det-core',title:'01 — Loan calculation engine (Priority 1)',items:[
+    {n:'Cashflow model',v:'Scheduled P+I, interest-only, construction drawdown schedules — per loan type.'},
+    {n:'Accrual engine',v:'Daily accruals: Actual/365, 30/360, Actual/360 — PIK capitalisation for mezzanine.'},
+    {n:'Rate engine',v:'BBSY/AONIA + margin, rate reset schedules, interest rate cap/floor, hedge overlay.'},
+    {n:'Waterfall engine',v:'Senior → mezz → preferred equity → common equity distribution logic per fund.'},
+    {n:'Covenant tracker',v:'LVR, ICR, DSCR — automated breach detection, waiver logging, cure period tracking.'},
+    {n:'Tech stack',v:'Python (pandas/numpy/scipy) · dbt · Snowflake · Git version control · Airflow orchestration'},
+  ],uses:['loan_positions_daily','interest_accrual_daily','waterfall_distributions','covenant_status']},
+  inv:{panel:'det-core',title:'02 — Investor reporting engine (Priority 2)',items:[
+    {n:'Financial statements',v:'P&L, balance sheet, cash flow statement — fund and investor-level — auto-generated.'},
+    {n:'NAV calculation',v:'Net asset value per unit per period — with full audit trail and period lock.'},
+    {n:'Distribution notices',v:'Automated distribution calculation and notice generation — per investor allocation.'},
+    {n:'IRR / MOIC',v:'Money-weighted and time-weighted returns — inception to date and period returns (scipy XIRR).'},
+    {n:'Statement generation',v:'Templafy / Python+WeasyPrint — branded PDF statements from data warehouse.'},
+    {n:'Tech stack',v:'Snowflake · Power BI · Templafy · Power Pages investor portal · Azure Blob PDF store'},
+  ],uses:['investor_statement','distribution_notice','fund_nav','P&L']},
+  treas:{panel:'det-core',title:'03 — Treasury dashboard',items:[
+    {n:'Portfolio overview',v:'Live book total, WA rate, WA maturity, loan type/sector breakdown. Top exposures table.'},
+    {n:'Maturity ladder',v:'Quarterly principal maturity profile — expected cashflows 12+ months. Re-deployment pipeline planning.'},
+    {n:'Concentration limits',v:'Borrower, sector, geographic limits vs constitution and warehouse covenants. Live limit line.'},
+    {n:'Covenant watchlist',v:'All covenant tests — LVR, ICR, DSCR — with headroom, breach flags and next test dates.'},
+    {n:'Funding facilities',v:'Warehouse utilisation across all facilities — available headroom, expiry dates, covenants.'},
+    {n:'Tech stack',v:'Power BI (DirectQuery on Snowflake) · Automated Excel via openpyxl · PDF board pack generation'},
+  ],uses:['portfolio_summary','covenant_status','fund_nav','warehouse_utilisation']},
+  fund:{panel:'det-phase2',title:'04 — Fund administration',items:[
+    {n:'Unit registry',v:'Investor unit holding ledger — subscriptions, redemptions, transfers, unit splits.'},
+    {n:'Capital account',v:'Capital account per investor — contributions, distributions, carried interest, opening/closing.'},
+    {n:'Fee calculation',v:'Management fee, performance fee, hurdle calculation — configurable per fund per class.'},
+    {n:'Reconciliation',v:'Daily position reconciliation between loan system, bank accounts and fund register.'},
+    {n:'Tax reporting',v:'AMMA statements, AMIT attribution — integration with tax agent workflow.'},
+    {n:'Tech stack',v:'Mainstar / InvestCloud / Iress — or custom-built on Snowflake + Python for full flexibility'},
+  ],uses:['dim_investor','waterfall_distributions','AMMA_tax','unit_registry']},
+  asic:{panel:'det-phase2',title:'05 — ASIC compliance',items:[
+    {n:'RG45 disclosure',v:'Benchmarks and disclosure principles for unlisted mortgage schemes — automated quarterly reports.'},
+    {n:'RG133 reporting',v:'Responsible entity obligations — quarterly lodgements and annual audited accounts.'},
+    {n:'AML/CTF',v:'AUSTRAC reporting, suspicious matter reports, transaction monitoring (ComplyAdvantage).'},
+    {n:'Audit trail',v:'Immutable event log — all calculations, overrides, approvals — for ASIC examination. 7yr retention.'},
+    {n:'AFSL obligations',v:'Compliance calendar, breach register, incident management workflow, CPD tracking.'},
+    {n:'Tech stack',v:'Azure Immutable Blob (audit log) · Compliance365 / ComplyAdvantage · Power Automate workflows'},
+  ],uses:['RG45_benchmarks','RG133_lodge','AUSTRAC','audit_trail']},
+  kyc:{panel:'det-phase2',title:'06 — KYC &amp; digital onboarding',items:[
+    {n:'Digital ID verify',v:'Onfido / Equifax ID matrix / Frankie One — document scan + biometric match. Replaces manual AML.'},
+    {n:'CDD workflow',v:'Customer due diligence — risk tiering, beneficial ownership mapping, PEP/sanctions screening.'},
+    {n:'eKYC forms',v:'Digital investor onboarding — replaces paper applications — e-signature via DocuSign.'},
+    {n:'Ongoing monitoring',v:'Automated re-verification triggers — address change, high-risk flag, periodic review schedule.'},
+    {n:'AML case mgmt',v:'Case management for flagged investors — workflow, approval chain, decision audit log.'},
+    {n:'Tech stack',v:'Onfido / Frankie One · DocuSign · Salesforce CRM or HubSpot · ComplyAdvantage screening'},
+  ],uses:['kyc_status','aml_monitoring','investor_onboarding']},
+  portal:{panel:'det-delivery',title:'07 — Investor portal',items:[
+    {n:'Authentication',v:'Azure AD B2C — MFA required — role-based access (each investor sees only their holdings).'},
+    {n:'Statement access',v:'Download current and historical statements, tax docs, distribution notices. Direct Azure Blob link.'},
+    {n:'Portfolio view',v:'Live holding summary — units, NAV, return since inception — read-only, no calculation client-side.'},
+    {n:'Document vault',v:'IM, constitution, annual accounts, ASIC disclosures — version-controlled with effective dates.'},
+    {n:'Notifications',v:'Automated email/SMS — distribution events, new statements, capital calls, renewal reminders.'},
+    {n:'Tech stack',v:'Microsoft Power Pages (on SharePoint) · Azure AD B2C · Azure Blob for documents · Power Automate'},
+  ],uses:['investor_statements','fund_nav','distribution_notices','portal_audit_log']},
+  share:{panel:'det-delivery',title:'08 — SharePoint intranet',items:[
+    {n:'Team sites',v:'Per-team document libraries — credit, operations, finance, compliance. Replaces shared drives.'},
+    {n:'News &amp; comms',v:'Internal announcements, regulatory updates, board resolutions, team updates.'},
+    {n:'Document mgmt',v:'Version control, approval workflows, check-in/check-out — metadata tagging for search.'},
+    {n:'Search',v:'Microsoft Viva / Copilot search across all internal content, emails and Teams messages.'},
+    {n:'Integration',v:'Connects to Teams, Outlook, Power BI, Power Pages — single Microsoft 365 ecosystem.'},
+    {n:'Tech stack',v:'SharePoint Online (Microsoft 365) · Microsoft Teams · Viva Connections · Copilot (optional)'},
+  ],uses:['internal_docs','team_communications','document_vault']},
+  conf:{panel:'det-delivery',title:'09 — Confluence / SOP library',items:[
+    {n:'Process docs',v:'Step-by-step SOPs for every operational process — loan drawdown, investor reporting, period close.'},
+    {n:'Runbooks',v:'IT and ops runbooks — incident response, period-close checklist, system failover procedures.'},
+    {n:'Version control',v:'Full edit history — every change tracked, previous versions accessible with diff view.'},
+    {n:'Approval workflow',v:'SOP review and sign-off workflow — ensures SOPs stay current, approved and audit-ready.'},
+    {n:'Jira integration',v:'Link SOPs to Jira tasks — when a process runs, it references the approved SOP directly.'},
+    {n:'Tech stack',v:'Confluence Cloud (Atlassian) · Jira for task management · Loom for video SOPs · Slack alerts'},
+  ],uses:['operational_SOPs','runbooks','compliance_procedures']},
+  dw:{panel:'det-infra',title:'Shared infrastructure — data warehouse',items:[
+    {n:'Platform',v:'Snowflake (preferred) or Azure Synapse — central store for all financial data across all modules.'},
+    {n:'dbt layer',v:'All transformations as code — staging → mart → reporting — version controlled in Git.'},
+    {n:'Data lineage',v:'dbt docs + Elementary — full lineage from raw source to investor statement. Every number traceable.'},
+    {n:'Period close',v:'Locked snapshots per reporting period — immutable once auditor-approved. is_locked = true.'},
+    {n:'Row-level security',v:'Fund managers see only their fund. Investors see only their holdings. RBAC enforced at query level.'},
+    {n:'Tech stack',v:'Snowflake · dbt Cloud · Apache Airflow (orchestration) · Great Expectations (data quality)'},
+  ],uses:['all_modules']},
+  sec:{panel:'det-infra',title:'Shared infrastructure — security &amp; IAM',items:[
+    {n:'Identity',v:'Azure Active Directory — single identity for all internal and portal users. SSO across Microsoft 365.'},
+    {n:'MFA',v:'Multi-factor authentication enforced for all users — Microsoft Authenticator app or hardware key.'},
+    {n:'RBAC',v:'Role-based access — credit analyst, ops, finance, investor — no over-provisioning. Least privilege.'},
+    {n:'Zero trust',v:'Every request authenticated regardless of network location. Conditional Access policies enforced.'},
+    {n:'DLP',v:'Data loss prevention — no investor data to personal email or USB. Sensitivity labels on all financial docs.'},
+    {n:'Tech stack',v:'Azure AD · Microsoft Defender · Conditional Access · Privileged Identity Management · Purview'},
+  ],uses:['all_modules']},
+  cloud:{panel:'det-infra',title:'Shared infrastructure — cloud &amp; DevOps',items:[
+    {n:'Platform',v:'Azure primary (aligns with Microsoft 365 ecosystem) · AWS as option if Snowflake deployed there.'},
+    {n:'DevOps',v:'Azure DevOps / GitHub — CI/CD for all code including dbt models, Python calc engine and portal.'},
+    {n:'Disaster recovery',v:'Geo-redundant storage · RTO 4hr · RPO 1hr — tested quarterly. Azure Paired Regions.'},
+    {n:'Audit logging',v:'Immutable Azure Monitor logs — all access, calculation, override events — 7yr retention for ASIC.'},
+    {n:'Cost governance',v:'Azure Cost Management — per-department tagging, budget alerts, reserved capacity for Snowflake.'},
+    {n:'Tech stack',v:'Azure (primary) · Terraform (IaC) · GitHub Actions · Azure Monitor · Key Vault · Azure Policy'},
+  ],uses:['all_modules']},
+};
+function show(k){
+  const d=comps[k];
+  const panel=document.getElementById(d.panel);
+  let html=`<div class="det-title">${d.title}</div><div class="detail-grid">`;
+  d.items.forEach(i=>{html+=`<div class="det-item"><div class="det-name">${i.n}</div><div class="det-val">${i.v}</div></div>`});
+  html+='</div>';
+  if(d.uses&&d.uses.length){html+=`<div class="uses"><div class="uses-label">Key outputs / tables</div>`;d.uses.forEach(u=>{html+=`<span class="use-tag" style="font-family:'IBM Plex Mono',monospace">${u}</span>`});html+='</div>';}
+  panel.innerHTML=html;panel.classList.add('show');
+  document.querySelectorAll('.comp-card,.infra-card').forEach(c=>c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+</script>
+</body>
+</html>

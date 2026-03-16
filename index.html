@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Labassa — Digital Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F7F8FC;--surface:#fff;--border:#E3E6F0;--text-primary:#0C1224;
+  --text-secondary:#4A5270;--text-muted:#8890A8;--accent:#0F6E56;
+  --accent-light:#E1F5EE;--accent-mid:#1D9E75;--purple:#534AB7;
+  --purple-light:#EEEDFE;--amber:#854F0B;--amber-light:#FAEEDA;
+  --coral:#993C1D;--coral-light:#FAECE7;--blue:#185FA5;--blue-light:#E6F1FB;
+  --shadow:0 1px 3px rgba(12,18,36,.07),0 4px 12px rgba(12,18,36,.04);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--bg);color:var(--text-primary);font-size:14px;line-height:1.6}
+a{color:var(--accent);text-decoration:none}
+
+.topnav{position:sticky;top:0;z-index:100;height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:0}
+.topnav-brand{font-size:13px;font-weight:600;letter-spacing:.02em;margin-right:auto;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.badge-live{font-size:10px;font-weight:600;letter-spacing:.06em;padding:3px 8px;border-radius:20px;background:var(--accent-light);color:var(--accent);text-transform:uppercase}
+
+.hero{padding:56px 28px 40px;max-width:1200px;margin:0 auto}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.hero-title{font-size:36px;font-weight:300;color:var(--text-primary);line-height:1.2;margin-bottom:8px}
+.hero-title strong{font-weight:600}
+.hero-sub{font-size:15px;color:var(--text-secondary);max-width:560px;line-height:1.7;margin-bottom:32px}
+.hero-stats{display:flex;gap:32px;flex-wrap:wrap}
+.stat-block{border-left:2px solid var(--accent);padding-left:14px}
+.stat-val{font-size:22px;font-weight:600;color:var(--text-primary);line-height:1}
+.stat-label{font-size:11px;color:var(--text-muted);margin-top:3px}
+
+.divider{height:1px;background:var(--border);margin:0 28px}
+
+.section{max-width:1200px;margin:0 auto;padding:40px 28px}
+.section-header{display:flex;align-items:baseline;gap:10px;margin-bottom:20px}
+.section-title{font-size:16px;font-weight:600}
+.section-sub{font-size:12px;color:var(--text-muted)}
+
+.nav-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media(max-width:900px){.nav-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:540px){.nav-grid{grid-template-columns:1fr}}
+
+.nav-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:22px 22px 18px;cursor:pointer;transition:all .2s;
+  display:block;text-decoration:none;color:inherit;position:relative;
+  box-shadow:var(--shadow);
+}
+.nav-card:hover{transform:translateY(-3px);box-shadow:0 4px 16px rgba(12,18,36,.1);border-color:var(--border);text-decoration:none}
+.nav-card:hover .arrow{opacity:1;transform:translateX(3px)}
+.card-icon{width:38px;height:38px;border-radius:8px;margin-bottom:14px;display:flex;align-items:center;justify-content:center}
+.card-num{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;font-family:'IBM Plex Mono',monospace}
+.card-name{font-size:15px;font-weight:600;margin-bottom:6px;line-height:1.3}
+.card-desc{font-size:12px;color:var(--text-secondary);line-height:1.6}
+.card-footer{margin-top:16px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px}
+.arrow{font-size:16px;color:var(--text-muted);transition:all .2s;opacity:.5}
+
+.phase-section{margin-top:8px}
+.phase-title{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.phase-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.phase-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.phase-chip{font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);color:var(--text-secondary);background:var(--surface);font-weight:500}
+
+.timeline{margin-top:40px}
+.timeline-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.tl-col{padding:18px 18px 20px;border-right:1px solid var(--border)}
+.tl-col:last-child{border-right:none}
+.tl-phase{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+.tl-period{font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text-primary)}
+.tl-item{font-size:11px;color:var(--text-secondary);padding:3px 0;display:flex;align-items:flex-start;gap:6px}
+.tl-item::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;margin-top:5px}
+.tl-p1{color:var(--purple)}.tl-p2{color:var(--accent)}.tl-p3{color:var(--blue)}.tl-p4{color:var(--text-muted)}
+
+.footer{margin-top:48px;border-top:1px solid var(--border);padding:20px 28px;max-width:1200px;margin:48px auto 0;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text-muted)}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-brand">
+    <div class="dot"></div>
+    Labassa — Digital Platform
+  </div>
+  <span class="badge-live">Confidential</span>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Digital transformation proposal</div>
+  <h1 class="hero-title">Labassa Capital<br><strong>Integrated Operations Platform</strong></h1>
+  <p class="hero-sub">A full-stack digitalisation of loan management, investor reporting, fund administration, compliance, and knowledge management — purpose-built for a $600M project finance book.</p>
+  <div class="hero-stats">
+    <div class="stat-block">
+      <div class="stat-val">$600M</div>
+      <div class="stat-label">Loan book under management</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-val">10</div>
+      <div class="stat-label">Platform components</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-val">2</div>
+      <div class="stat-label">Priority build phases</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-val">~12 mo</div>
+      <div class="stat-label">Full deployment horizon</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="section">
+  <div class="section-header">
+    <div class="section-title">Platform components</div>
+    <div class="section-sub">Click any section to explore in detail</div>
+  </div>
+
+  <div style="margin-bottom:8px">
+    <div class="phase-title">Phase 1 — Build now (0–6 months)</div>
+  </div>
+  <div class="nav-grid" style="margin-bottom:28px">
+
+    <a class="nav-card" href="02-loan-engine.html">
+      <div class="card-icon" style="background:var(--purple-light)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="3" rx="1.5" fill="#534AB7"/><rect x="2" y="8.5" width="12" height="3" rx="1.5" fill="#534AB7" opacity=".6"/><rect x="2" y="14" width="8" height="3" rx="1.5" fill="#534AB7" opacity=".35"/></svg>
+      </div>
+      <div class="card-num">01</div>
+      <div class="card-name">Loan calculation engine</div>
+      <div class="card-desc">Accruals, cashflow scheduling, rate resets, waterfall distributions, covenant tracking — the single source of truth for all financial calculations.</div>
+      <div class="card-footer">
+        <span class="card-tag badge-purple">Priority 1</span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <a class="nav-card" href="03-investor-reporting.html">
+      <div class="card-icon" style="background:var(--accent-light)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="2" width="14" height="16" rx="2" stroke="#0F6E56" stroke-width="1.5" fill="none"/><line x1="6" y1="7" x2="14" y2="7" stroke="#0F6E56" stroke-width="1.2"/><line x1="6" y1="10" x2="14" y2="10" stroke="#0F6E56" stroke-width="1.2" opacity=".6"/><line x1="6" y1="13" x2="11" y2="13" stroke="#0F6E56" stroke-width="1.2" opacity=".35"/></svg>
+      </div>
+      <div class="card-num">02</div>
+      <div class="card-name">Investor reporting engine</div>
+      <div class="card-desc">Automated NAV, financial statements, distribution notices and investor statements — generated from the data warehouse, zero manual assembly.</div>
+      <div class="card-footer">
+        <span class="card-tag badge-p2">Priority 2</span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <a class="nav-card" href="04-treasury.html">
+      <div class="card-icon" style="background:var(--blue-light)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><polyline points="3,14 7,9 11,11 17,5" stroke="#185FA5" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/><rect x="3" y="15" width="14" height="1.5" rx=".75" fill="#185FA5" opacity=".3"/></svg>
+      </div>
+      <div class="card-num">03</div>
+      <div class="card-name">Treasury dashboard</div>
+      <div class="card-desc">Live portfolio overview, maturity ladder, concentration limits, covenant watchlist, warehouse utilisation and rate/hedge exposure — all in one Power BI view.</div>
+      <div class="card-footer">
+        <span class="card-tag badge-p2">Priority 2</span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+
+  <div style="margin-bottom:8px">
+    <div class="phase-title">Phase 2 — Build next (6–12 months)</div>
+  </div>
+  <div class="nav-grid" style="margin-bottom:28px">
+
+    <a class="nav-card" href="05-platform.html">
+      <div class="card-icon" style="background:var(--coral-light)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="7" height="5" rx="1.5" fill="#993C1D" opacity=".8"/><rect x="11" y="5" width="7" height="5" rx="1.5" fill="#993C1D" opacity=".5"/><rect x="2" y="12" width="7" height="5" rx="1.5" fill="#993C1D" opacity=".35"/><rect x="11" y="12" width="7" height="5" rx="1.5" fill="#993C1D" opacity=".2"/></svg>
+      </div>
+      <div class="card-num">04</div>
+      <div class="card-name">Fund administration</div>
+      <div class="card-desc">Unit registry, capital account management, fee calculation and tax reporting (AMMA statements) — replacing manual spreadsheet processes.</div>
+      <div class="card-footer">
+        <span class="card-tag" style="background:var(--coral-light);color:var(--coral)">Phase 2</span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <a class="nav-card" href="05-platform.html">
+      <div class="card-icon" style="background:var(--amber-light)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3L17 7v6l-7 4L3 13V7L10 3z" stroke="#854F0B" stroke-width="1.5" fill="none"/><circle cx="10" cy="10" r="2" fill="#854F0B" opacity=".6"/></svg>
+      </div>
+      <div class="card-num">05</div>
+      <div class="card-name">ASIC compliance</div>
+      <div class="card-desc">Automated RG45 and RG133 disclosures, AML/CTF reporting, AUSTRAC obligations and immutable audit trail — all data-driven from the warehouse.</div>
+      <div class="card-footer">
+        <span class="card-tag" style="background:var(--coral-light);color:var(--coral)">Phase 2</span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <a class="nav-card" href="05-platform.html">
+      <div class="card-icon" style="background:#FBEAF0">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="8" r="4" stroke="#993556" stroke-width="1.5" fill="none"/><path d="M4 17c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="#993556" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+      </div>
+      <div class="card-num">06</div>
+      <div class="card-name">KYC &amp; digital onboarding</div>
+      <div class="card-desc">Onfido/Frankie One digital ID verification, CDD workflow, e-signature onboarding and ongoing AML monitoring — replacing manual paper processes.</div>
+      <div class="card-footer">
+        <span class="card-tag" style="background:var(--coral-light);color:var(--coral)">Phase 2</span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <a class="nav-card" href="05-platform.html">
+      <div class="card-icon" style="background:var(--accent-light)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#0F6E56" stroke-width="1.5" fill="none"/><circle cx="10" cy="10" r="2" fill="#0F6E56"/><line x1="10" y1="3" x2="10" y2="8" stroke="#0F6E56" stroke-width="1.2"/></svg>
+      </div>
+      <div class="card-num">07</div>
+      <div class="card-name">Investor portal</div>
+      <div class="card-desc">Microsoft Power Pages — MFA-secured self-service portal for investors to view holdings, download statements and access fund documents.</div>
+      <div class="card-footer">
+        <span class="card-tag" style="background:var(--coral-light);color:var(--coral)">Phase 2</span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <a class="nav-card" href="05-platform.html">
+      <div class="card-icon" style="background:#F1EFE8">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="6" rx="1.5" fill="#5F5E5A" opacity=".7"/><rect x="11" y="3" width="6" height="6" rx="1.5" fill="#5F5E5A" opacity=".45"/><rect x="3" y="11" width="6" height="6" rx="1.5" fill="#5F5E5A" opacity=".35"/><rect x="11" y="11" width="6" height="6" rx="1.5" fill="#5F5E5A" opacity=".2"/></svg>
+      </div>
+      <div class="card-num">08</div>
+      <div class="card-name">SharePoint intranet</div>
+      <div class="card-desc">Microsoft SharePoint Online — internal team sites, document management, news and integration with Teams and Outlook across all departments.</div>
+      <div class="card-footer">
+        <span class="card-tag" style="background:var(--coral-light);color:var(--coral)">Phase 2</span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <a class="nav-card" href="05-platform.html">
+      <div class="card-icon" style="background:#F1EFE8">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 4h12v12H4z" stroke="#5F5E5A" stroke-width="1.2" fill="none" rx="1"/><line x1="4" y1="8" x2="16" y2="8" stroke="#5F5E5A" stroke-width="1"/><line x1="8" y1="8" x2="8" y2="16" stroke="#5F5E5A" stroke-width="1"/></svg>
+      </div>
+      <div class="card-num">09</div>
+      <div class="card-name">Confluence / SOP library</div>
+      <div class="card-desc">Atlassian Confluence for all operational procedures, runbooks and checklists — version-controlled, searchable and linked to Jira task management.</div>
+      <div class="card-footer">
+        <span class="card-tag" style="background:var(--coral-light);color:var(--coral)">Phase 2</span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- Data lineage -->
+  <div class="nav-grid" style="grid-template-columns:minmax(0,1fr);margin-bottom:0">
+    <a class="nav-card" href="06-data-lineage.html">
+      <div class="card-icon" style="background:var(--purple-light)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="4" cy="4" r="2" fill="#534AB7"/><circle cx="16" cy="4" r="2" fill="#534AB7"/><circle cx="10" cy="10" r="2" fill="#534AB7" opacity=".7"/><circle cx="4" cy="16" r="2" fill="#534AB7" opacity=".4"/><circle cx="16" cy="16" r="2" fill="#534AB7" opacity=".4"/><line x1="4" y1="6" x2="10" y2="8" stroke="#534AB7" stroke-width="1" opacity=".5"/><line x1="16" y1="6" x2="10" y2="8" stroke="#534AB7" stroke-width="1" opacity=".5"/><line x1="10" y1="12" x2="4" y2="14" stroke="#534AB7" stroke-width="1" opacity=".4"/><line x1="10" y1="12" x2="16" y2="14" stroke="#534AB7" stroke-width="1" opacity=".4"/></svg>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div>
+          <div class="card-num">Reference</div>
+          <div class="card-name">Data lineage &amp; schema explorer</div>
+          <div class="card-desc">Full data lineage from source loan system through calculation engine to every investor reporting output. Click any table to see its full column schema and downstream uses.</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="card-tag badge-purple">Technical reference</span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="section">
+  <div class="section-header">
+    <div class="section-title">Implementation timeline</div>
+  </div>
+  <div class="timeline-grid">
+    <div class="tl-col" style="background:#EEEDFE08">
+      <div class="tl-phase" style="color:var(--purple)">Phase 1A</div>
+      <div class="tl-period">Months 0–3</div>
+      <div class="tl-item tl-p1">Snowflake / Azure Synapse — data warehouse setup</div>
+      <div class="tl-item tl-p1">dbt staging models for loan system ingestion</div>
+      <div class="tl-item tl-p1">Python accrual engine (daily interest calc)</div>
+      <div class="tl-item tl-p1">Validate vs existing Excel models</div>
+    </div>
+    <div class="tl-col" style="background:#E1F5EE08">
+      <div class="tl-phase" style="color:var(--accent)">Phase 1B</div>
+      <div class="tl-period">Months 3–6</div>
+      <div class="tl-item tl-p2">Waterfall engine + distribution calculations</div>
+      <div class="tl-item tl-p2">NAV calculation + period lock workflow</div>
+      <div class="tl-item tl-p2">Power BI treasury dashboard (internal)</div>
+      <div class="tl-item tl-p2">Automated PDF investor statements</div>
+    </div>
+    <div class="tl-col">
+      <div class="tl-phase" style="color:var(--blue)">Phase 2A</div>
+      <div class="tl-period">Months 6–9</div>
+      <div class="tl-item tl-p3">Digital KYC / investor onboarding (Onfido)</div>
+      <div class="tl-item tl-p3">Investor portal (Power Pages + Azure AD)</div>
+      <div class="tl-item tl-p3">ASIC RG45 / RG133 automated reports</div>
+      <div class="tl-item tl-p3">SharePoint intranet launch</div>
+    </div>
+    <div class="tl-col">
+      <div class="tl-phase" style="color:var(--text-muted)">Phase 2B</div>
+      <div class="tl-period">Months 9–12</div>
+      <div class="tl-item tl-p4">Full fund admin automation (AMMA, unit reg)</div>
+      <div class="tl-item tl-p4">Confluence SOP library migration</div>
+      <div class="tl-item tl-p4">AML/CTF transaction monitoring</div>
+      <div class="tl-item tl-p4">Full platform UAT &amp; go-live</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>Labassa Capital — Digital Platform Proposal</span>
+  <span>Confidential · <span id="yr"></span></span>
+</div>
+<script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+</body>
+</html>

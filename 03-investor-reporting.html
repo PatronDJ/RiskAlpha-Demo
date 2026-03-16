@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investor Reporting Engine — Labassa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7F8FC;--surface:#fff;--border:#E3E6F0;--text-primary:#0C1224;--text-secondary:#4A5270;--text-muted:#8890A8;--accent:#0F6E56;--accent-light:#E1F5EE;--purple:#534AB7;--purple-light:#EEEDFE;--amber:#854F0B;--amber-light:#FAEEDA;--coral:#993C1D;--coral-light:#FAECE7;--blue:#185FA5;--blue-light:#E6F1FB;--shadow:0 1px 3px rgba(12,18,36,.07),0 4px 12px rgba(12,18,36,.04)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--bg);color:var(--text-primary);font-size:14px;line-height:1.6}
+a{color:var(--accent);text-decoration:none}
+.topnav{position:sticky;top:0;z-index:100;height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:0}
+.topnav-brand{font-size:13px;font-weight:600;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.topnav-links{display:flex;gap:2px;flex:1;margin:0 24px;overflow-x:auto;scrollbar-width:none}
+.topnav-links::-webkit-scrollbar{display:none}
+.topnav-links a{font-size:12px;color:var(--text-secondary);white-space:nowrap;padding:6px 12px;border-radius:6px;transition:all .15s;text-decoration:none}
+.topnav-links a:hover{background:var(--bg);color:var(--text-primary)}
+.topnav-links a.active{background:var(--accent-light);color:var(--accent);font-weight:500}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;background:var(--accent-light);color:var(--accent)}
+.page{max-width:1100px;margin:0 auto;padding:32px 28px 64px}
+.page-title{font-size:22px;font-weight:600;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--text-muted);margin-bottom:28px}
+.section-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+.layer{margin-bottom:4px}
+.layer-arrow{display:flex;justify-content:center;align-items:center;padding:8px 0;gap:10px;color:var(--text-muted);font-size:11px}
+.layer-arrow::before,.layer-arrow::after{content:'';flex:1;height:1px;background:var(--border)}
+.grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(max-width:800px){.grid-4,.grid-3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;box-shadow:var(--shadow);cursor:pointer;transition:all .15s}
+.card:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(12,18,36,.09)}
+.card.active{outline:2px solid var(--text-primary);outline-offset:1px}
+.card-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;opacity:.6}
+.card-title{font-size:13px;font-weight:600;margin-bottom:4px;line-height:1.3}
+.card-desc{font-size:11px;opacity:.72;line-height:1.5}
+.c-purple{background:var(--purple-light);border-color:#AFA9EC;color:var(--purple)}
+.c-teal{background:var(--accent-light);border-color:#5DCAA5;color:var(--accent)}
+.c-gray{background:var(--bg);border-color:var(--border);color:var(--text-secondary)}
+.c-blue{background:var(--blue-light);border-color:#85B7EB;color:var(--blue)}
+.c-amber{background:var(--amber-light);border-color:#EF9F27;color:var(--amber)}
+.detail-panel{margin-top:14px;border-radius:10px;padding:16px 18px;border:1px solid var(--border);background:var(--surface);display:none}
+.detail-panel.show{display:block}
+.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.det-item{background:var(--bg);border-radius:6px;padding:10px 12px;border:1px solid var(--border)}
+.det-name{font-size:11px;font-weight:600;margin-bottom:2px}
+.det-val{font-size:11px;color:var(--text-secondary);line-height:1.4}
+.det-tags{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.det-tags-label{font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
+.det-tag{display:inline-block;font-size:10px;padding:3px 9px;border-radius:10px;background:var(--bg);border:1px solid var(--border);margin:2px 3px 2px 0;color:var(--text-secondary);font-family:'IBM Plex Mono',monospace}
+
+/* Report mockup */
+.report-preview{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.report-header{background:var(--text-primary);color:#fff;padding:16px 22px}
+.report-header-title{font-size:15px;font-weight:600;margin-bottom:2px}
+.report-header-sub{font-size:11px;opacity:.6}
+.report-body{padding:18px 22px}
+.report-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.report-row:last-child{border-bottom:none;font-weight:600}
+.report-row .label{color:var(--text-secondary)}
+.report-row .value{font-family:'IBM Plex Mono',monospace;font-weight:500}
+.report-section-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);padding:10px 0 4px;margin-top:4px}
+
+.flow-step{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px}
+.flow-num{width:24px;height:24px;border-radius:50%;background:var(--accent-light);color:var(--accent);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.flow-content-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.flow-content-desc{font-size:11px;color:var(--text-secondary);line-height:1.5}
+
+.stack-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.stack-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.stack-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;color:var(--text-muted)}
+.stack-item{font-size:12px;color:var(--text-secondary);padding:4px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.stack-item:last-child{border-bottom:none}
+.sdot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between;align-items:center}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-brand"><div class="dot"></div>Labassa</div>
+  <div class="topnav-links">
+    <a href="index.html">Overview</a>
+    <a href="02-loan-engine.html">Loan engine</a>
+    <a href="03-investor-reporting.html" class="active">Investor reporting</a>
+    <a href="04-treasury.html">Treasury dashboard</a>
+    <a href="05-platform.html">All components</a>
+    <a href="06-data-lineage.html">Data lineage</a>
+  </div>
+  <span class="badge">Priority 2</span>
+</nav>
+
+<div class="page">
+  <div class="page-title">Investor reporting engine</div>
+  <div class="page-sub">Automated NAV, financial statements and investor deliverables — generated directly from the data warehouse. Zero manual assembly.</div>
+
+  <!-- INPUTS -->
+  <div class="layer">
+    <div class="section-label">Inputs — from loan engine + fund register (via data warehouse)</div>
+    <div class="grid-4">
+      <div class="card c-purple" onclick="showDetail('input_positions')">
+        <div class="card-label">Input 1</div>
+        <div class="card-title">Loan positions</div>
+        <div class="card-desc">Daily balances · accruals · cashflow actuals from loan_positions_daily</div>
+      </div>
+      <div class="card c-purple" onclick="showDetail('input_waterfall')">
+        <div class="card-label">Input 2</div>
+        <div class="card-title">Waterfall output</div>
+        <div class="card-desc">Per-investor distribution entitlements from waterfall_distributions</div>
+      </div>
+      <div class="card c-purple" onclick="showDetail('input_register')">
+        <div class="card-label">Input 3</div>
+        <div class="card-title">Fund register</div>
+        <div class="card-desc">Investor units, capital contributions and redemptions from dim_investor</div>
+      </div>
+      <div class="card c-purple" onclick="showDetail('input_valuations')">
+        <div class="card-label">Input 4</div>
+        <div class="card-title">Valuations</div>
+        <div class="card-desc">Asset fair values from external appraisals — drives NAV and LVR calculations</div>
+      </div>
+    </div>
+    <div id="det-inputs" class="detail-panel"></div>
+  </div>
+
+  <div class="layer-arrow">all inputs flow through dbt mart layer in Snowflake</div>
+
+  <!-- CALCULATIONS -->
+  <div class="layer">
+    <div class="section-label">Reporting calculations — period-based financial computations</div>
+    <div class="grid-4">
+      <div class="card c-teal" onclick="showDetail('nav_calc')">
+        <div class="card-label">Calc 1</div>
+        <div class="card-title">NAV calculation</div>
+        <div class="card-desc">Gross asset value less liabilities divided by units on issue = NAV per unit</div>
+      </div>
+      <div class="card c-teal" onclick="showDetail('returns_calc')">
+        <div class="card-label">Calc 2</div>
+        <div class="card-title">Return metrics</div>
+        <div class="card-desc">IRR (XIRR) · MOIC · DPI · RVPI · TWR · MWR — since inception and period</div>
+      </div>
+      <div class="card c-teal" onclick="showDetail('statements_calc')">
+        <div class="card-label">Calc 3</div>
+        <div class="card-title">Financial statements</div>
+        <div class="card-desc">P&amp;L, balance sheet and cash flow — fund level per reporting period</div>
+      </div>
+      <div class="card c-teal" onclick="showDetail('distribution_calc')">
+        <div class="card-label">Calc 4</div>
+        <div class="card-title">Distribution calc</div>
+        <div class="card-desc">Income entitlement per investor unit · tax components · reinvestment option</div>
+      </div>
+    </div>
+    <div id="det-calcs" class="detail-panel"></div>
+  </div>
+
+  <div class="layer-arrow">period lock · 4-eyes approval · immutable snapshot</div>
+
+  <!-- PERIOD CLOSE -->
+  <div class="layer">
+    <div class="section-label">Period close — lock, review and approve before any statement is generated</div>
+    <div class="grid-3">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div><div class="flow-content-title">Period lock</div><div class="flow-content-desc">Month/quarter-end date reached. Calculation engine writes final snapshot to Snowflake with is_period_end = true. No further edits to source data.</div></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div><div class="flow-content-title">Automated reconciliation</div><div class="flow-content-desc">dbt tests run automatically — bank reconciliation, loan balance check, total assets = total liabilities + net assets. Any failure blocks report generation.</div></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div><div class="flow-content-title">4-eyes approval</div><div class="flow-content-desc">Fund manager reviews NAV calculation in approval portal. Signs off — approved_by and approved_at written to fund_nav. is_locked set to true. Audit trail complete.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layer-arrow">approved data → document generation pipeline</div>
+
+  <!-- DOCUMENT GENERATION -->
+  <div class="layer">
+    <div class="section-label">Document generation — approved data → branded investor deliverables</div>
+    <div class="grid-3">
+      <div class="card c-teal" onclick="showDetail('pdf_statement')">
+        <div class="card-label">Output 1</div>
+        <div class="card-title">Investor statement (PDF)</div>
+        <div class="card-desc">Holdings, returns, distributions, fees — per investor. Generated by Templafy or Python/WeasyPrint. Stored in Azure Blob.</div>
+      </div>
+      <div class="card c-teal" onclick="showDetail('qtrly_report')">
+        <div class="card-label">Output 2</div>
+        <div class="card-title">Quarterly fund report</div>
+        <div class="card-desc">Portfolio narrative, asset-level commentary, covenant status table, performance attribution</div>
+      </div>
+      <div class="card c-teal" onclick="showDetail('dist_notice')">
+        <div class="card-label">Output 3</div>
+        <div class="card-title">Distribution notice</div>
+        <div class="card-desc">Per-investor distribution amounts, tax breakdown (AMMA), payment instruction</div>
+      </div>
+    </div>
+    <div id="det-outputs" class="detail-panel"></div>
+  </div>
+
+  <!-- REPORT PREVIEW -->
+  <div style="margin-top:28px">
+    <div class="section-label">Sample investor statement — data mapping</div>
+    <div class="grid-2">
+      <div class="report-preview">
+        <div class="report-header">
+          <div class="report-header-title">Labassa Mortgage Fund No.1</div>
+          <div class="report-header-sub">Investor Statement · Quarter ended 31 March 2026 · John Smith</div>
+        </div>
+        <div class="report-body">
+          <div class="report-section-head">Account summary</div>
+          <div class="report-row"><span class="label">Units held</span><span class="value">142,500.00</span></div>
+          <div class="report-row"><span class="label">Opening unit value</span><span class="value">$1.0824</span></div>
+          <div class="report-row"><span class="label">Closing unit value</span><span class="value">$1.0891</span></div>
+          <div class="report-section-head">Period activity</div>
+          <div class="report-row"><span class="label">Opening balance</span><span class="value">$154,242.00</span></div>
+          <div class="report-row"><span class="label">Income for period</span><span class="value">+$3,218.40</span></div>
+          <div class="report-row"><span class="label">Management fee</span><span class="value">−$384.76</span></div>
+          <div class="report-row"><span class="label">Distribution paid</span><span class="value">−$2,747.25</span></div>
+          <div class="report-row"><span class="label">Closing balance</span><span class="value">$154,328.39</span></div>
+          <div class="report-section-head">Returns</div>
+          <div class="report-row"><span class="label">Period return</span><span class="value" style="color:var(--accent)">+0.62%</span></div>
+          <div class="report-row"><span class="label">IRR since inception</span><span class="value" style="color:var(--accent)">8.41% p.a.</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="section-label" style="margin-bottom:14px">Data source for each line</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:12px">
+          <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;align-items:center">
+            <span style="color:var(--text-secondary)">Units held</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent)">dim_investor.units_held</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;align-items:center">
+            <span style="color:var(--text-secondary)">Opening unit value</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent)">fund_nav.nav_per_unit (prior)</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;align-items:center">
+            <span style="color:var(--text-secondary)">Closing unit value</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent)">fund_nav.nav_per_unit (current)</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;align-items:center">
+            <span style="color:var(--text-secondary)">Income for period</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent)">waterfall_distributions.income_entitlement</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;align-items:center">
+            <span style="color:var(--text-secondary)">Management fee</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent)">waterfall_distributions.management_fee</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;align-items:center">
+            <span style="color:var(--text-secondary)">Distribution paid</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent)">waterfall_distributions.net_distribution</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;align-items:center">
+            <span style="color:var(--text-secondary)">IRR since inception</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent)">scipy.xirr(cashflow_schedule)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELIVERY -->
+  <div class="layer" style="margin-top:28px">
+    <div class="section-label">Delivery — multi-channel investor communication</div>
+    <div class="grid-3">
+      <div class="card c-blue">
+        <div class="card-label">Channel 1</div>
+        <div class="card-title">Investor portal</div>
+        <div class="card-desc">Power Pages · MFA login via Azure AD B2C · self-serve document download · role-based — each investor sees only their data</div>
+      </div>
+      <div class="card c-blue">
+        <div class="card-label">Channel 2</div>
+        <div class="card-title">Automated email</div>
+        <div class="card-desc">Power Automate triggered on period close · PDF attached · branded template · delivery confirmation logging</div>
+      </div>
+      <div class="card c-blue">
+        <div class="card-label">Channel 3</div>
+        <div class="card-title">Internal dashboards</div>
+        <div class="card-desc">Power BI DirectQuery on Snowflake · live fund manager views · board pack PDF generation · no manual data entry</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TECH STACK -->
+  <div class="stack-grid">
+    <div class="stack-card">
+      <div class="stack-label">Calculation &amp; data</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--accent)"></div>Snowflake — data warehouse</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--accent)"></div>dbt Cloud — transformations</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--accent)"></div>Python scipy — XIRR/IRR</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--accent)"></div>Airflow — orchestration</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-label">Report generation</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--purple)"></div>Templafy — branded templates</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--purple)"></div>Python + WeasyPrint (PDF)</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--purple)"></div>Azure Blob — PDF storage</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--purple)"></div>DocuSign — e-signature</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-label">Delivery &amp; portal</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--blue)"></div>Power Pages — investor portal</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--blue)"></div>Azure AD B2C — MFA login</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--blue)"></div>Power Automate — email</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--blue)"></div>Power BI — dashboards</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="02-loan-engine.html">← Loan engine</a>
+    <a href="04-treasury.html">Treasury dashboard →</a>
+  </div>
+</div>
+
+<script>
+const details = {
+  input_positions:{g:'det-inputs',t:'Loan positions input',items:[
+    {n:'loan_positions_daily.closing_balance',v:'The outstanding principal balance per loan per day. Sum across all loans = gross book = main asset on balance sheet.'},
+    {n:'loan_positions_daily.accrued_interest_balance',v:'Unpaid accrued interest is a separate asset line — sits on balance sheet until paid, then moves to cash.'},
+    {n:'interest_accrual_daily.income_recognised',v:'This is what goes to the P&L — effective interest method income (not just cash received). AASB 9 requirement.'},
+    {n:'cashflow_schedule.actual vs scheduled',v:'Variance drives arrears reporting and any required credit loss provision. Also feeds RG45 Benchmark 8.'},
+  ],tags:['fund_nav','portfolio_summary','P&L','balance_sheet']},
+  input_waterfall:{g:'det-inputs',t:'Waterfall distribution output',items:[
+    {n:'waterfall_distributions.income_entitlement',v:'Each investor\'s gross income share for the period — pro-rata by units held after waterfall is applied.'},
+    {n:'waterfall_distributions.management_fee',v:'Fee deducted from each investor\'s share — based on fund_nav × fee_rate × investor_units / total_units.'},
+    {n:'waterfall_distributions.net_distribution',v:'The actual amount paid or reinvested. This is the distribution notice amount — investor-facing figure.'},
+    {n:'waterfall_distributions.distribution_per_unit',v:'CPU (cents per unit) — the headline number quoted in distribution notices and press releases.'},
+  ],tags:['investor_statement','distribution_notice','AMMA_tax_statement']},
+  input_register:{g:'det-inputs',t:'Fund register inputs',items:[
+    {n:'dim_investor.units_held',v:'Current units on register per investor. Updated after each subscription, redemption or reinvestment event.'},
+    {n:'dim_investor.distribution_election',v:'Cash or reinvestment — determines whether net_distribution flows to bank or creates new units.'},
+    {n:'dim_investor.investor_class',v:'Wholesale / Retail / Institutional — may affect fee rates, minimum investment, reporting obligations.'},
+    {n:'dim_investor.join_date',v:'Inception date for this investor\'s IRR calculation — all cashflows since this date.'},
+  ],tags:['waterfall_distributions','investor_statement']},
+  input_valuations:{g:'det-inputs',t:'Valuation inputs',items:[
+    {n:'Asset fair values',v:'External property/asset valuations — typically quarterly. Loaded via CSV upload or API from valuation firm.'},
+    {n:'LVR recalculation',v:'When new valuations arrive, LVR is recalculated for each loan — may trigger covenant test.'},
+    {n:'NAV impact',v:'Fair value uplift or writedown flows through to gross_asset_value and therefore NAV per unit.'},
+    {n:'Valuation methodology',v:'Independent external appraiser. Methodology disclosed to investors per RG45 requirements.'},
+  ],tags:['fund_nav.gross_asset_value','covenant_status.lvr']},
+  nav_calc:{g:'det-calcs',t:'NAV calculation',items:[
+    {n:'Gross Asset Value (GAV)',v:'SUM(loan_positions_daily.closing_balance) + accrued interest receivable + cash at bank + other assets.'},
+    {n:'Total liabilities',v:'Warehouse facility drawn balance + accrued management fees + distributions payable + other creditors.'},
+    {n:'Net Asset Value',v:'GAV − liabilities = fund_nav.net_asset_value — this is the headline fund size figure.'},
+    {n:'NAV per unit',v:'NAV ÷ fund_nav.units_on_issue — the unit price. Locked after 4-eyes approval. Cannot be edited after lock.'},
+  ],tags:['fund_nav','investor_statement','ASIC_unit_pricing']},
+  returns_calc:{g:'det-calcs',t:'Return metrics calculation',items:[
+    {n:'IRR (XIRR method)',v:'scipy.xirr called on complete cashflow history per investor from dim_investor.join_date. All contributions negative, distributions positive, current value positive at calculation date.'},
+    {n:'MOIC',v:'(Total distributions to date + current holding value) / total capital invested. Simple multiple — most intuitive for investors.'},
+    {n:'DPI (Distributions to Paid-In)',v:'Total distributions / total capital called. Shows how much cash has been returned. DPI = 1.0x means you\'ve returned all invested capital.'},
+    {n:'TWR vs MWR',v:'Time-weighted return removes timing effects — use for benchmarking manager performance. MWR = IRR — use for investor-specific return reporting.'},
+  ],tags:['investor_statement.irr','investor_statement.moic']},
+  statements_calc:{g:'det-calcs',t:'Financial statement calculation',items:[
+    {n:'P&L — Interest income',v:'SUM(interest_accrual_daily.income_recognised) per fund per period. Effective interest method per AASB 9.'},
+    {n:'P&L — Fee income',v:'Line fees + commitment fees + establishment fee amortisation. Sourced from portfolio_summary.total_fees.'},
+    {n:'Balance sheet — Loans',v:'SUM(loan_positions_daily.closing_balance) at period end. Separate line for accrued interest receivable.'},
+    {n:'Cash flow statement',v:'Operating: interest + fees received. Investing: loan drawdowns and repayments. Financing: subscriptions, redemptions, distributions.'},
+  ],tags:['P&L','balance_sheet','cash_flow_statement']},
+  distribution_calc:{g:'det-calcs',t:'Distribution calculation',items:[
+    {n:'Income available for distribution',v:'Net income after all expenses (management fee, performance fee, credit provisions) = distributable amount.'},
+    {n:'Per-unit allocation',v:'Distributable amount / units_on_issue = CPU (cents per unit). Each investor\'s share = CPU × their units_held.'},
+    {n:'Tax components',v:'Total distribution split into: assessable income, tax deferred, tax-free (capital gains discount). Required for AMMA statement.'},
+    {n:'Reinvestment processing',v:'For investors electing reinvestment: net_distribution / current NAV per unit = new units issued. Unit register updated same day.'},
+  ],tags:['waterfall_distributions.distribution_per_unit','distribution_notice','AMMA_tax_statement']},
+  pdf_statement:{g:'det-outputs',t:'PDF investor statement generation',items:[
+    {n:'Template engine',v:'Templafy (recommended for branded Word/PDF templates) or Python + WeasyPrint for fully custom HTML-to-PDF generation.'},
+    {n:'Data binding',v:'Template variables ({{investor_name}}, {{units_held}}, {{nav_per_unit}}) populated from Snowflake query at generation time.'},
+    {n:'Storage',v:'Generated PDF stored in Azure Blob Storage per investor per period. Immutable once generated — never overwritten.'},
+    {n:'Delivery',v:'Power Automate trigger: new file in Blob → email to investor with PDF attached → log delivery confirmation.'},
+  ],tags:['Power_Pages_download','Email_attachment','audit_log']},
+  qtrly_report:{g:'det-outputs',t:'Quarterly fund report',items:[
+    {n:'Portfolio narrative',v:'Templated commentary on portfolio performance, new loans settled, repayments received, market conditions.'},
+    {n:'Asset-level table',v:'Top holdings table — borrower, type, balance, rate, LVR, maturity, status. Sourced from portfolio_summary + covenant_status.'},
+    {n:'Performance attribution',v:'Returns breakdown — what drove performance this quarter. Interest income vs fee income vs valuation movement.'},
+    {n:'Covenant status',v:'Summary of covenant compliance across all loans — count of compliant, watch, breach. Waiver summary if applicable.'},
+  ],tags:['portfolio_summary','covenant_status','performance_metrics']},
+  dist_notice:{g:'det-outputs',t:'Distribution notice',items:[
+    {n:'Per-investor amounts',v:'waterfall_distributions.net_distribution per investor. Individual notice generated per investor — not a bulk report.'},
+    {n:'Tax breakdown',v:'AMMA statement: assessable income, tax deferred component, tax-free component. Required for investor tax returns.'},
+    {n:'Payment instruction',v:'BSB + account from investor profile. Reconciliation reference for bank payment. EFT file generated for batch payment.'},
+    {n:'Reinvestment confirmation',v:'For reinvesting investors: confirmation of new unit issue, new total units, updated unit registry note.'},
+  ],tags:['AMMA_tax_statement','unit_registry_update','bank_EFT_file']},
+};
+function showDetail(k){
+  const d=details[k];
+  const panel=document.getElementById(d.g);
+  let html=`<div style="font-size:14px;font-weight:600;margin-bottom:12px">${d.t}</div><div class="detail-grid">`;
+  d.items.forEach(i=>{html+=`<div class="det-item"><div class="det-name" style="font-family:'IBM Plex Mono',monospace;font-size:10px">${i.n}</div><div class="det-val">${i.v}</div></div>`});
+  html+='</div>';
+  if(d.tags&&d.tags.length){html+=`<div class="det-tags"><div class="det-tags-label">Feeds into</div>`;d.tags.forEach(t=>{html+=`<span class="det-tag">${t}</span>`});html+='</div>';}
+  panel.innerHTML=html;panel.classList.add('show');
+  document.querySelectorAll('.card').forEach(c=>c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+</script>
+</body>
+</html>

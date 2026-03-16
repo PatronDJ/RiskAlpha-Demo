@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Lineage — Labassa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7F8FC;--surface:#fff;--border:#E3E6F0;--text-primary:#0C1224;--text-secondary:#4A5270;--text-muted:#8890A8;--accent:#0F6E56;--accent-light:#E1F5EE;--purple:#534AB7;--purple-light:#EEEDFE;--amber:#854F0B;--amber-light:#FAEEDA;--coral:#993C1D;--coral-light:#FAECE7;--blue:#185FA5;--blue-light:#E6F1FB;--shadow:0 1px 3px rgba(12,18,36,.07),0 4px 12px rgba(12,18,36,.04)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--bg);color:var(--text-primary);font-size:14px;line-height:1.6}
+a{color:var(--accent);text-decoration:none}
+.topnav{position:sticky;top:0;z-index:100;height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px}
+.topnav-brand{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.topnav-links{display:flex;gap:2px;flex:1;margin:0 24px;overflow-x:auto;scrollbar-width:none}
+.topnav-links::-webkit-scrollbar{display:none}
+.topnav-links a{font-size:12px;color:var(--text-secondary);white-space:nowrap;padding:6px 12px;border-radius:6px;transition:all .15s;text-decoration:none}
+.topnav-links a:hover{background:var(--bg);color:var(--text-primary)}
+.topnav-links a.active{background:var(--purple-light);color:var(--purple);font-weight:500}
+.page{max-width:1100px;margin:0 auto;padding:32px 28px 64px}
+.page-title{font-size:22px;font-weight:600;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.tab-bar{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:20px;overflow-x:auto;scrollbar-width:none}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{font-size:12px;font-weight:500;padding:9px 16px;cursor:pointer;border:none;background:transparent;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s;white-space:nowrap;font-family:inherit}
+.tab-btn:hover{color:var(--text-primary)}
+.tab-btn.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.tab-pane{display:none}.tab-pane.on{display:block}
+.section-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+.layer-arrow{display:flex;justify-content:center;align-items:center;padding:8px 0;gap:10px;color:var(--text-muted);font-size:11px}
+.layer-arrow::before,.layer-arrow::after{content:'';flex:1;height:1px;background:var(--border)}
+.grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(max-width:800px){.grid-4,.grid-3{grid-template-columns:1fr 1fr}}
+@media(max-width:500px){.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}}
+.tcard{border-radius:8px;padding:10px 12px;cursor:pointer;border:1px solid transparent;transition:all .15s}
+.tcard:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.tcard.active{outline:2px solid var(--text-primary);outline-offset:1px}
+.tcard-name{font-size:12px;font-weight:600;font-family:'IBM Plex Mono',monospace;margin-bottom:3px}
+.tcard-desc{font-size:11px;opacity:.7;line-height:1.4}
+.tcard-grain{font-size:10px;margin-top:4px;font-family:'IBM Plex Mono',monospace;opacity:.55}
+.c-g{background:var(--bg);border-color:var(--border);color:var(--text-primary)}
+.c-p{background:var(--purple-light);border-color:#AFA9EC;color:var(--purple)}
+.c-t{background:var(--accent-light);border-color:#5DCAA5;color:var(--accent)}
+.c-b{background:var(--blue-light);border-color:#85B7EB;color:var(--blue)}
+.c-co{background:var(--coral-light);border-color:#F0997B;color:var(--coral)}
+.detail-panel{margin-top:14px;border-radius:10px;padding:16px 18px;border:1px solid var(--border);background:var(--surface);display:none}
+.detail-panel.show{display:block}
+.det-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.det-title{font-size:14px;font-weight:600;font-family:'IBM Plex Mono',monospace}
+.det-tag{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--blue-light);color:var(--blue);font-weight:600;font-family:'IBM Plex Sans',sans-serif}
+.cols-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+@media(max-width:600px){.cols-grid{grid-template-columns:1fr}}
+.col-item{background:var(--bg);border-radius:6px;padding:8px 10px;border:1px solid var(--border)}
+.col-type{font-size:10px;color:var(--text-muted);margin-bottom:1px;font-family:'IBM Plex Mono',monospace}
+.col-name{font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:var(--blue);margin-bottom:2px}
+.col-desc{font-size:11px;color:var(--text-secondary)}
+.uses-section{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.uses-label{font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
+.use-tag{display:inline-block;font-size:10px;padding:3px 9px;border-radius:10px;background:var(--bg);border:1px solid var(--border);margin:2px 3px 2px 0;color:var(--text-secondary)}
+
+.mapping-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.mapping-tbl th{text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);padding:7px 10px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.03em}
+.mapping-tbl td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text-secondary);vertical-align:top}
+.mapping-tbl tbody tr:last-child td{border-bottom:none}
+.mapping-tbl tbody tr:hover{background:var(--bg)}
+.mono-cell{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent)}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;transition:all .15s;margin-bottom:10px}
+.card:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.card.active{outline:2px solid var(--text-primary);outline-offset:1px}
+.card-title{font-size:13px;font-weight:600;margin-bottom:3px}
+.card-desc{font-size:11px;color:var(--text-secondary)}
+.footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-brand"><div class="dot"></div>Labassa</div>
+  <div class="topnav-links">
+    <a href="index.html">Overview</a>
+    <a href="02-loan-engine.html">Loan engine</a>
+    <a href="03-investor-reporting.html">Investor reporting</a>
+    <a href="04-treasury.html">Treasury dashboard</a>
+    <a href="05-platform.html">All components</a>
+    <a href="06-data-lineage.html" class="active">Data lineage</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-title">Data lineage &amp; schema explorer</div>
+  <div class="page-sub">Full data lineage from source loan system through calculation engine to every investor output. Click any table to see its columns and downstream uses.</div>
+
+  <div class="tab-bar">
+    <button class="tab-btn on" onclick="tab('lineage',this)">Data lineage</button>
+    <button class="tab-btn" onclick="tab('schema',this)">Table schemas</button>
+    <button class="tab-btn" onclick="tab('mapping',this)">Report mapping</button>
+  </div>
+
+  <!-- LINEAGE TAB -->
+  <div id="pane-lineage" class="tab-pane on">
+    <div class="section-label">Source — loan system of record</div>
+    <div class="grid-4">
+      <div class="tcard c-g" onclick="det('src_fac')"><div class="tcard-name">loan_facility</div><div class="tcard-desc">Loan terms, limit, rate, type, maturity</div><div class="tcard-grain">1 row / facility</div></div>
+      <div class="tcard c-g" onclick="det('src_dd')"><div class="tcard-name">loan_drawdown</div><div class="tcard-desc">Each drawdown event and amount</div><div class="tcard-grain">1 row / drawdown</div></div>
+      <div class="tcard c-g" onclick="det('src_rep')"><div class="tcard-name">loan_repayment</div><div class="tcard-desc">Principal and interest payments received</div><div class="tcard-grain">1 row / payment</div></div>
+      <div class="tcard c-g" onclick="det('src_rate')"><div class="tcard-name">rate_reset</div><div class="tcard-desc">BBSY/AONIA rate history and schedule</div><div class="tcard-grain">1 row / reset event</div></div>
+    </div>
+    <div id="det-source" class="detail-panel"></div>
+
+    <div class="layer-arrow">daily ETL via Airflow · dbt staging layer · validation checks</div>
+
+    <div class="section-label">Calculation engine — Python + dbt (Snowflake)</div>
+    <div class="grid-4">
+      <div class="tcard c-p" onclick="det('calc_pos')"><div class="tcard-name">loan_positions_daily</div><div class="tcard-desc">Outstanding balance per loan per day</div><div class="tcard-grain">1 row / loan / day</div></div>
+      <div class="tcard c-p" onclick="det('calc_acc')"><div class="tcard-name">interest_accrual_daily</div><div class="tcard-desc">Daily interest charge and fee accruals</div><div class="tcard-grain">1 row / loan / day</div></div>
+      <div class="tcard c-p" onclick="det('calc_cf')"><div class="tcard-name">cashflow_schedule</div><div class="tcard-desc">Projected and actual cashflows</div><div class="tcard-grain">1 row / loan / period</div></div>
+      <div class="tcard c-p" onclick="det('calc_cov')"><div class="tcard-name">covenant_status</div><div class="tcard-desc">LVR, ICR, DSCR per test date</div><div class="tcard-grain">1 row / loan / test</div></div>
+    </div>
+    <div id="det-calc" class="detail-panel"></div>
+
+    <div class="layer-arrow">dbt mart layer · period aggregations · period lock</div>
+
+    <div class="section-label">Aggregation mart — fund and investor level</div>
+    <div class="grid-3">
+      <div class="tcard c-t" onclick="det('mart_port')"><div class="tcard-name">portfolio_summary</div><div class="tcard-desc">Fund-level totals, WA rate, WAM, sector splits</div><div class="tcard-grain">1 row / fund / period</div></div>
+      <div class="tcard c-t" onclick="det('mart_wf')"><div class="tcard-name">waterfall_distributions</div><div class="tcard-desc">Per-investor distribution entitlements</div><div class="tcard-grain">1 row / investor / period</div></div>
+      <div class="tcard c-t" onclick="det('mart_nav')"><div class="tcard-name">fund_nav</div><div class="tcard-desc">NAV per unit — locked after 4-eyes approval</div><div class="tcard-grain">1 row / fund / period</div></div>
+    </div>
+    <div id="det-mart" class="detail-panel"></div>
+
+    <div class="layer-arrow">approved data → document generation → multi-channel delivery</div>
+
+    <div class="section-label">Investor reporting outputs</div>
+    <div class="grid-4">
+      <div class="tcard c-b" onclick="det('out_stmt')"><div class="tcard-name">Investor statement</div><div class="tcard-desc">Holdings, return, distributions per investor PDF</div><div class="tcard-grain">Monthly / quarterly</div></div>
+      <div class="tcard c-b" onclick="det('out_fin')"><div class="tcard-name">Financial statements</div><div class="tcard-desc">P&L, balance sheet, cash flow — fund level</div><div class="tcard-grain">Quarterly / annual</div></div>
+      <div class="tcard c-b" onclick="det('out_dist')"><div class="tcard-name">Distribution notice</div><div class="tcard-desc">CPU, tax components, payment instruction</div><div class="tcard-grain">Per distribution event</div></div>
+      <div class="tcard c-b" onclick="det('out_asic')"><div class="tcard-name">ASIC disclosures</div><div class="tcard-desc">RG45 benchmarks, RG133 quarterly lodge</div><div class="tcard-grain">Quarterly</div></div>
+    </div>
+    <div id="det-outputs" class="detail-panel"></div>
+  </div>
+
+  <!-- SCHEMA TAB -->
+  <div id="pane-schema" class="tab-pane">
+    <div class="grid-2">
+      <div>
+        <div class="section-label">Core fact tables</div>
+        <div class="card" onclick="schema('loan_positions_daily')"><div class="card-title" style="font-family:'IBM Plex Mono',monospace">loan_positions_daily</div><div class="card-desc">Central fact table — balance per loan per day. Drives NAV, balance sheet and investor statements.</div></div>
+        <div class="card" onclick="schema('interest_accrual_daily')"><div class="card-title" style="font-family:'IBM Plex Mono',monospace">interest_accrual_daily</div><div class="card-desc">Daily P&L driver — interest income recognition using effective interest method.</div></div>
+        <div class="card" onclick="schema('cashflow_schedule')"><div class="card-title" style="font-family:'IBM Plex Mono',monospace">cashflow_schedule</div><div class="card-desc">Scheduled vs actual cashflows — variance, arrears, maturity ladder, IRR input stream.</div></div>
+        <div class="card" onclick="schema('waterfall_distributions')"><div class="card-title" style="font-family:'IBM Plex Mono',monospace">waterfall_distributions</div><div class="card-desc">Per-investor allocation engine output — income, fees, net distribution, tax components.</div></div>
+      </div>
+      <div>
+        <div class="section-label">Dimension tables</div>
+        <div class="card" onclick="schema('dim_loan')"><div class="card-title" style="font-family:'IBM Plex Mono',monospace">dim_loan</div><div class="card-desc">Loan master — type, borrower, sector, state, related party flag.</div></div>
+        <div class="card" onclick="schema('dim_investor')"><div class="card-title" style="font-family:'IBM Plex Mono',monospace">dim_investor</div><div class="card-desc">Investor profile — units held, class, distribution election, KYC status.</div></div>
+        <div class="card" onclick="schema('dim_fund')"><div class="card-title" style="font-family:'IBM Plex Mono',monospace">dim_fund</div><div class="card-desc">Fund parameters — waterfall rules, fee structure, reporting period, hurdle rate.</div></div>
+        <div class="card" onclick="schema('dim_calendar')"><div class="card-title" style="font-family:'IBM Plex Mono',monospace">dim_calendar</div><div class="card-desc">Period labels, business days, month-end flags, BBSY reset dates.</div></div>
+      </div>
+    </div>
+    <div id="det-schema" class="detail-panel"></div>
+  </div>
+
+  <!-- MAPPING TAB -->
+  <div id="pane-mapping" class="tab-pane">
+    <div class="grid-2" style="margin-bottom:14px">
+      <div class="card" onclick="mapping('stmt')"><div class="card-title">Investor statement — line item sources</div><div class="card-desc">Opening balance · income · distributions · closing balance · return metrics</div></div>
+      <div class="card" onclick="mapping('pl')"><div class="card-title">P&L statement — line item sources</div><div class="card-desc">Interest income · fee income · expenses · net income · distribution</div></div>
+      <div class="card" onclick="mapping('bs')"><div class="card-title">Balance sheet — line item sources</div><div class="card-desc">Loan book · accrued interest · cash · liabilities · net assets</div></div>
+      <div class="card" onclick="mapping('rg45')"><div class="card-title">RG45 ASIC benchmarks — data sources</div><div class="card-desc">LTV ratio · diversification · debt maturity · interest rate risk · arrears</div></div>
+    </div>
+    <div id="det-mapping" class="detail-panel"></div>
+  </div>
+
+  <div class="footer">
+    <a href="05-platform.html">← All components</a>
+    <a href="index.html">Back to overview →</a>
+  </div>
+</div>
+
+<script>
+function tab(id,el){document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));document.getElementById('pane-'+id).classList.add('on');el.classList.add('on');}
+
+const detData={
+  src_fac:{panel:'det-source',title:'loan_facility',tag:'Source — loan system',cols:[
+    {t:'VARCHAR PK',n:'facility_id',d:'Unique loan identifier'},
+    {t:'VARCHAR FK',n:'borrower_id',d:'Links to borrower master'},
+    {t:'DECIMAL(15,2)',n:'facility_limit',d:'Maximum approved loan amount'},
+    {t:'VARCHAR',n:'loan_type',d:'Senior / Construction / Mezz / Pref equity'},
+    {t:'VARCHAR',n:'base_rate_index',d:'BBSY / AONIA / Fixed'},
+    {t:'DECIMAL(6,4)',n:'credit_margin',d:'Margin above base rate (e.g. 0.0307 = 3.07%)'},
+    {t:'VARCHAR',n:'day_count_convention',d:'Actual/365 · 30/360 · Actual/360'},
+    {t:'DATE',n:'maturity_date',d:'Scheduled repayment date'},
+  ],uses:['loan_positions_daily','interest_accrual_daily','waterfall_distributions']},
+  src_dd:{panel:'det-source',title:'loan_drawdown',tag:'Source — loan system',cols:[
+    {t:'VARCHAR PK',n:'drawdown_id',d:'Unique drawdown event ID'},
+    {t:'VARCHAR FK',n:'facility_id',d:'Parent facility'},
+    {t:'DATE',n:'drawdown_date',d:'Date funds advanced to borrower'},
+    {t:'DECIMAL(15,2)',n:'drawdown_amount',d:'Amount advanced'},
+    {t:'VARCHAR',n:'purpose',d:'Land · Construction · Capitalised interest'},
+    {t:'DECIMAL(15,2)',n:'running_balance',d:'Total drawn after this event'},
+    {t:'DECIMAL(15,2)',n:'available_undrawn',d:'Remaining undrawn commitment'},
+  ],uses:['loan_positions_daily','cashflow_schedule','portfolio_summary']},
+  src_rep:{panel:'det-source',title:'loan_repayment',tag:'Source — loan system',cols:[
+    {t:'VARCHAR PK',n:'repayment_id',d:'Unique payment event'},
+    {t:'VARCHAR FK',n:'facility_id',d:'Parent facility'},
+    {t:'DATE',n:'payment_date',d:'Date received into collection account'},
+    {t:'DECIMAL(15,2)',n:'principal_paid',d:'Principal component of payment'},
+    {t:'DECIMAL(15,2)',n:'interest_paid',d:'Interest component of payment'},
+    {t:'VARCHAR',n:'payment_type',d:'Scheduled / Partial / Full prepayment'},
+    {t:'VARCHAR',n:'bank_ref',d:'Bank reconciliation reference'},
+  ],uses:['loan_positions_daily','cashflow_schedule.actual_vs_scheduled']},
+  src_rate:{panel:'det-source',title:'rate_reset',tag:'Source — market data feed',cols:[
+    {t:'VARCHAR PK',n:'reset_id',d:'Unique reset event'},
+    {t:'VARCHAR FK',n:'facility_id',d:'Parent facility'},
+    {t:'DATE',n:'reset_date',d:'Effective date of new rate'},
+    {t:'DECIMAL(6,4)',n:'base_rate',d:'BBSY/AONIA fixing on reset date'},
+    {t:'DECIMAL(6,4)',n:'all_in_rate',d:'Base + margin + any fees'},
+    {t:'DATE',n:'next_reset_date',d:'When next reset is scheduled'},
+    {t:'VARCHAR',n:'source',d:'Refinitiv / Bloomberg / manual'},
+  ],uses:['interest_accrual_daily.base_rate','rate_sensitivity']},
+  calc_pos:{panel:'det-calc',title:'loan_positions_daily',tag:'Calc engine — CORE TABLE',cols:[
+    {t:'DATE PK',n:'position_date',d:'Daily snapshot date'},
+    {t:'VARCHAR FK',n:'facility_id',d:'Parent loan — join to dim_loan'},
+    {t:'VARCHAR FK',n:'fund_id',d:'Which fund — join to dim_fund'},
+    {t:'DECIMAL(15,2)',n:'opening_balance',d:'Prior day closing balance'},
+    {t:'DECIMAL(15,2)',n:'drawdowns_today',d:'New principal advanced today'},
+    {t:'DECIMAL(15,2)',n:'repayments_today',d:'Principal received today'},
+    {t:'DECIMAL(15,2)',n:'closing_balance',d:'KEY FIGURE — drives NAV, balance sheet, statements'},
+    {t:'DECIMAL(15,2)',n:'accrued_interest_balance',d:'Unpaid accrued interest — a separate asset'},
+    {t:'BOOLEAN',n:'is_period_end',d:'Month-end / quarter-end flag for reporting snapshots'},
+  ],uses:['fund_nav.gross_asset_value','portfolio_summary','investor_statement_opening_closing','balance_sheet_loans']},
+  calc_acc:{panel:'det-calc',title:'interest_accrual_daily',tag:'Calc engine — P&L driver',cols:[
+    {t:'DATE PK',n:'accrual_date',d:'The day this accrual applies to'},
+    {t:'VARCHAR FK',n:'facility_id',d:'Parent loan'},
+    {t:'DECIMAL(15,2)',n:'daily_balance',d:'Balance on which interest is calculated'},
+    {t:'DECIMAL(6,4)',n:'all_in_rate',d:'base_rate + credit_margin on this day'},
+    {t:'DECIMAL(15,6)',n:'daily_interest',d:'daily_balance × all_in_rate / 365 — core calculation'},
+    {t:'DECIMAL(15,4)',n:'pik_accrual',d:'PIK interest capitalised to principal (mezz only)'},
+    {t:'DECIMAL(15,4)',n:'fee_accrual_daily',d:'Line fee + commitment fee accrued today'},
+    {t:'DECIMAL(15,2)',n:'income_recognised',d:'Effective interest method income — goes to P&L'},
+  ],uses:['P&L_interest_income','investor_statement_period_income','NAV_income_adjustment','RG45_interest_rate']},
+  calc_cf:{panel:'det-calc',title:'cashflow_schedule',tag:'Calc engine — scheduled vs actual',cols:[
+    {t:'VARCHAR FK',n:'facility_id',d:'Loan'},
+    {t:'DATE',n:'period_date',d:'The period this cashflow belongs to'},
+    {t:'DECIMAL(15,2)',n:'scheduled_principal',d:'Contractual principal due'},
+    {t:'DECIMAL(15,2)',n:'actual_principal',d:'What was actually received'},
+    {t:'DECIMAL(15,2)',n:'scheduled_interest',d:'Interest contractually due'},
+    {t:'DECIMAL(15,2)',n:'actual_interest',d:'Interest actually received'},
+    {t:'INTEGER',n:'days_past_due',d:'0 = current. Drives arrears classification'},
+    {t:'VARCHAR',n:'arrears_status',d:'Current / 30dpd / 60dpd / 90dpd+'},
+  ],uses:['maturity_ladder','cashflow_forecast','arrears_rate_RG45','IRR_cashflow_stream']},
+  calc_cov:{panel:'det-calc',title:'covenant_status',tag:'Calc engine — covenant tracker',cols:[
+    {t:'VARCHAR FK',n:'facility_id',d:'Loan identifier'},
+    {t:'DATE',n:'test_date',d:'Covenant test date'},
+    {t:'VARCHAR',n:'covenant_type',d:'LVR / ICR / DSCR / Other'},
+    {t:'DECIMAL(8,4)',n:'covenant_limit',d:'Threshold from loan agreement'},
+    {t:'DECIMAL(8,4)',n:'current_value',d:'Calculated value on test date'},
+    {t:'DECIMAL(8,4)',n:'headroom',d:'Distance from limit — negative = breach'},
+    {t:'VARCHAR',n:'status',d:'Compliant / Watch / Breach'},
+    {t:'VARCHAR',n:'waiver_id',d:'Links to waiver register if breach waived'},
+  ],uses:['covenant_watchlist_dashboard','quarterly_investor_report','ASIC_breach_disclosure']},
+  mart_port:{panel:'det-mart',title:'portfolio_summary',tag:'Aggregation mart',cols:[
+    {t:'VARCHAR FK',n:'fund_id',d:'Fund'},
+    {t:'DATE',n:'period_end_date',d:'Reporting period end'},
+    {t:'DECIMAL(15,2)',n:'gross_book',d:'Sum of all outstanding principal balances'},
+    {t:'DECIMAL(6,4)',n:'wa_interest_rate',d:'Balance-weighted average all-in rate'},
+    {t:'DECIMAL(5,2)',n:'wa_maturity_years',d:'Balance-weighted remaining term'},
+    {t:'DECIMAL(5,4)',n:'construction_pct',d:'Construction loan % of book — warehouse covenant'},
+    {t:'DECIMAL(15,2)',n:'total_accrued_income',d:'Gross income recognised this period'},
+    {t:'DECIMAL(15,2)',n:'total_fees',d:'Total fee income this period'},
+  ],uses:['P&L_revenue','treasury_dashboard','ASIC_benchmarks','board_pack']},
+  mart_wf:{panel:'det-mart',title:'waterfall_distributions',tag:'Aggregation mart — investor specific',cols:[
+    {t:'VARCHAR FK',n:'investor_id',d:'Investor identifier'},
+    {t:'DATE',n:'period_end_date',d:'Distribution period'},
+    {t:'DECIMAL(15,6)',n:'units_held',d:'Units on register at record date'},
+    {t:'DECIMAL(15,2)',n:'income_entitlement',d:'Gross income allocated to this investor'},
+    {t:'DECIMAL(15,2)',n:'management_fee',d:'Fee deducted per fee schedule'},
+    {t:'DECIMAL(15,2)',n:'net_distribution',d:'Amount paid or reinvested'},
+    {t:'DECIMAL(10,6)',n:'distribution_per_unit',d:'CPU — cents per unit distributed'},
+    {t:'DECIMAL(15,2)',n:'tax_deferred_component',d:'Tax-deferred — for AMMA statement'},
+    {t:'DECIMAL(15,6)',n:'reinvestment_units',d:'New units if reinvestment elected'},
+  ],uses:['investor_statement','distribution_notice','AMMA_tax_statement','unit_registry']},
+  mart_nav:{panel:'det-mart',title:'fund_nav',tag:'Aggregation mart — period locked',cols:[
+    {t:'VARCHAR FK',n:'fund_id',d:'Fund'},
+    {t:'DATE PK',n:'period_end_date',d:'NAV calculation date'},
+    {t:'DECIMAL(15,2)',n:'gross_asset_value',d:'Total loan book + cash + other assets'},
+    {t:'DECIMAL(15,2)',n:'total_liabilities',d:'Warehouse funding + accrued fees + payables'},
+    {t:'DECIMAL(15,2)',n:'net_asset_value',d:'KEY FIGURE: GAV minus liabilities'},
+    {t:'DECIMAL(20,6)',n:'units_on_issue',d:'Total units outstanding at period end'},
+    {t:'DECIMAL(12,6)',n:'nav_per_unit',d:'NAV ÷ units — the unit price'},
+    {t:'VARCHAR',n:'approved_by',d:'Fund manager who signed off NAV'},
+    {t:'BOOLEAN',n:'is_locked',d:'True = period closed, no further edits allowed'},
+  ],uses:['investor_statement_unit_value','IRR_return_calc','ASIC_unit_pricing']},
+  out_stmt:{panel:'det-outputs',title:'Investor statement',tag:'Investor output',cols:[
+    {t:'fund_nav.nav_per_unit (prior)',n:'Opening unit value',d:'Prior period locked row'},
+    {t:'fund_nav.nav_per_unit (current)',n:'Closing unit value',d:'Current period locked row'},
+    {t:'dim_investor.units_held',n:'Units held',d:'At record date'},
+    {t:'Derived: prior nav × units',n:'Opening balance $',d:'Calculated at report generation time'},
+    {t:'waterfall_distributions.income_entitlement',n:'Income for period',d:'Gross before fees'},
+    {t:'waterfall_distributions.management_fee',n:'Management fee',d:'Deducted in waterfall engine'},
+    {t:'waterfall_distributions.net_distribution',n:'Distribution paid',d:'Cash or reinvested'},
+    {t:'scipy.xirr(cashflow_schedule)',n:'IRR since inception',d:'All investor cashflows'},
+  ],uses:[]},
+  out_fin:{panel:'det-outputs',title:'P&L and balance sheet',tag:'Fund output',cols:[
+    {t:'SUM(interest_accrual_daily.income_recognised)',n:'Interest income',d:'Effective interest method'},
+    {t:'SUM(portfolio_summary.total_fees)',n:'Fee income',d:'Line + commitment + other fees'},
+    {t:'fund_nav.net_asset_value × fee_rate',n:'Management fee expense',d:'Accrued monthly'},
+    {t:'SUM(loan_positions_daily.closing_balance)',n:'Loan assets (B/S)',d:'At period end date'},
+    {t:'fund_nav.net_asset_value',n:'Net assets (B/S)',d:'GAV − liabilities'},
+    {t:'fund_nav.nav_per_unit',n:'NAV per unit (B/S)',d:'Net assets ÷ units on issue'},
+  ],uses:[]},
+  out_dist:{panel:'det-outputs',title:'Distribution notice',tag:'Investor output',cols:[
+    {t:'waterfall_distributions.distribution_per_unit',n:'Distribution per unit (CPU)',d:''},
+    {t:'dim_investor.units_held',n:'Record date units',d:'At record date'},
+    {t:'waterfall_distributions.net_distribution',n:'Net payment amount',d:'Cash or reinvested'},
+    {t:'waterfall_distributions.tax_deferred_component',n:'Tax-deferred component',d:'For investor tax return'},
+    {t:'waterfall_distributions.reinvestment_units',n:'New units if reinvested',d:'Updated to unit registry'},
+  ],uses:[]},
+  out_asic:{panel:'det-outputs',title:'RG45 ASIC benchmarks',tag:'Regulatory output',cols:[
+    {t:'portfolio_summary WA LVR',n:'Benchmark 1 — Loan-to-valuation',d:'< 65% typical limit'},
+    {t:'loan_positions_daily — max borrower %',n:'Benchmark 2 — Diversification',d:'< 10% typical'},
+    {t:'dim_loan.is_related_party',n:'Benchmark 3 — Related party loans',d:'Disclosed'},
+    {t:'cashflow_schedule maturity profile',n:'Benchmark 5 — Debt maturity',d:'Disclosed quarterly'},
+    {t:'cashflow_schedule.arrears_status',n:'Benchmark 8 — Arrears',d:'30/60/90dpd+ counts'},
+  ],uses:[]},
+};
+const schemas={
+  loan_positions_daily:{title:'loan_positions_daily — full schema',cols:[
+    {t:'DATE',n:'position_date',d:'Snapshot date — every day has one row per loan'},
+    {t:'VARCHAR FK',n:'facility_id',d:'Join to dim_loan for all facility attributes'},
+    {t:'VARCHAR FK',n:'fund_id',d:'Which fund — join to dim_fund'},
+    {t:'DECIMAL(15,2)',n:'opening_balance',d:'Prior day closing balance'},
+    {t:'DECIMAL(15,2)',n:'drawdowns_today',d:'New principal advanced today'},
+    {t:'DECIMAL(15,2)',n:'repayments_today',d:'Principal received today'},
+    {t:'DECIMAL(15,2)',n:'closing_balance',d:'CORE — drives NAV, statements, balance sheet'},
+    {t:'DECIMAL(15,2)',n:'accrued_interest_balance',d:'Unpaid interest = asset on balance sheet'},
+    {t:'BOOLEAN',n:'is_period_end',d:'Month/quarter-end snapshot flag'},
+    {t:'TIMESTAMP',n:'_etl_loaded_at',d:'Audit: when this row was written'},
+  ],uses:['fund_nav.gross_asset_value','portfolio_summary','investor_statement','balance_sheet']},
+  interest_accrual_daily:{title:'interest_accrual_daily — full schema',cols:[
+    {t:'DATE',n:'accrual_date',d:'The day this accrual applies to'},
+    {t:'VARCHAR FK',n:'facility_id',d:'Parent loan'},
+    {t:'DECIMAL(15,2)',n:'daily_balance',d:'Balance on which interest is calculated'},
+    {t:'DECIMAL(6,4)',n:'base_rate',d:'BBSY/AONIA for this date'},
+    {t:'DECIMAL(6,4)',n:'credit_margin',d:'Contractual margin from loan_facility'},
+    {t:'DECIMAL(6,4)',n:'all_in_rate',d:'base_rate + credit_margin + fees'},
+    {t:'DECIMAL(15,6)',n:'daily_interest',d:'daily_balance × all_in_rate / 365'},
+    {t:'DECIMAL(15,4)',n:'pik_accrual',d:'PIK interest capitalised to principal (mezz only)'},
+    {t:'DECIMAL(15,2)',n:'cumulative_period_interest',d:'Running total — resets at period close'},
+    {t:'DECIMAL(15,2)',n:'income_recognised',d:'Effective interest method — goes to P&L'},
+  ],uses:["P&L_interest_income","investor_statement_period_income","NAV_income_adjustment"]},
+  cashflow_schedule:{title:'cashflow_schedule — full schema',cols:[
+    {t:'VARCHAR FK',n:'facility_id',d:'Loan'},
+    {t:'DATE',n:'period_date',d:'The period this cashflow belongs to'},
+    {t:'VARCHAR',n:'cashflow_type',d:'Scheduled / Actual / Projected'},
+    {t:'DECIMAL(15,2)',n:'scheduled_principal',d:'Contractual principal due'},
+    {t:'DECIMAL(15,2)',n:'actual_principal',d:'Actually received'},
+    {t:'DECIMAL(15,2)',n:'scheduled_interest',d:'Contractually due'},
+    {t:'DECIMAL(15,2)',n:'actual_interest',d:'Actually received'},
+    {t:'INTEGER',n:'days_past_due',d:'0 = current — drives arrears flag'},
+    {t:'VARCHAR',n:'arrears_status',d:'Current / 30dpd / 60dpd / 90dpd+'},
+    {t:'DECIMAL(15,2)',n:'prepayment_fee',d:'Break cost if early repayment'},
+  ],uses:['maturity_ladder','cashflow_forecast','arrears_RG45','IRR_input']},
+  waterfall_distributions:{title:'waterfall_distributions — full schema',cols:[
+    {t:'VARCHAR FK',n:'investor_id',d:'Investor from dim_investor'},
+    {t:'DATE',n:'period_end_date',d:'Distribution period'},
+    {t:'DECIMAL(15,6)',n:'units_held',d:'Units at record date'},
+    {t:'DECIMAL(15,2)',n:'gross_income_share',d:'Pro-rata income before fees'},
+    {t:'DECIMAL(15,2)',n:'management_fee',d:'Fee deducted per fee schedule'},
+    {t:'DECIMAL(15,2)',n:'performance_fee',d:'Carry above hurdle if applicable'},
+    {t:'DECIMAL(15,2)',n:'net_distribution',d:'Amount paid or reinvested'},
+    {t:'DECIMAL(10,6)',n:'distribution_per_unit',d:'CPU — cents per unit distributed'},
+    {t:'DECIMAL(15,2)',n:'tax_deferred',d:'Tax-deferred component for AMMA'},
+    {t:'DECIMAL(15,6)',n:'reinvestment_units',d:'New units issued if reinvested'},
+  ],uses:['investor_statement','distribution_notice','AMMA_tax','unit_registry_update']},
+  dim_loan:{title:'dim_loan — full schema',cols:[
+    {t:'VARCHAR PK',n:'facility_id',d:''},
+    {t:'VARCHAR',n:'borrower_name',d:''},
+    {t:'VARCHAR',n:'loan_type',d:'Senior / Construction / Mezz / Pref equity'},
+    {t:'VARCHAR',n:'sector',d:'Residential / Commercial / Industrial / Mixed'},
+    {t:'VARCHAR',n:'state',d:'NSW / VIC / QLD / WA / SA'},
+    {t:'BOOLEAN',n:'is_related_party',d:'RG45 Benchmark 3 flag'},
+    {t:'VARCHAR',n:'security_type',d:'First mortgage / second mortgage'},
+  ],uses:['concentration_limits','RG45_disclosures','treasury_dashboard']},
+  dim_investor:{title:'dim_investor — full schema',cols:[
+    {t:'VARCHAR PK',n:'investor_id',d:''},
+    {t:'VARCHAR',n:'investor_name',d:''},
+    {t:'VARCHAR',n:'investor_class',d:'Wholesale / Retail / Institution'},
+    {t:'DECIMAL(15,6)',n:'units_held',d:'Current units — updated each distribution'},
+    {t:'VARCHAR',n:'distribution_election',d:'Cash / Reinvest'},
+    {t:'VARCHAR',n:'tax_file_number_status',d:'Provided / Withheld / Exempt'},
+    {t:'VARCHAR',n:'kyc_status',d:'Verified / Pending / Expired'},
+  ],uses:['waterfall_distributions','investor_statement','portal_access']},
+  dim_fund:{title:'dim_fund — full schema',cols:[
+    {t:'VARCHAR PK',n:'fund_id',d:''},
+    {t:'VARCHAR',n:'fund_name',d:''},
+    {t:'DECIMAL(6,4)',n:'management_fee_rate',d:'Annual % of NAV'},
+    {t:'DECIMAL(6,4)',n:'hurdle_rate',d:'Preferred return before carry'},
+    {t:'JSONB',n:'waterfall_config',d:'Waterfall rules — configurable per fund'},
+    {t:'VARCHAR',n:'reporting_period',d:'Monthly / Quarterly'},
+  ],uses:['waterfall_engine','fee_calc','NAV_calc']},
+  dim_calendar:{title:'dim_calendar — full schema',cols:[
+    {t:'DATE PK',n:'calendar_date',d:'Every calendar date'},
+    {t:'BOOLEAN',n:'is_business_day',d:'ASX/banking business day flag'},
+    {t:'BOOLEAN',n:'is_month_end',d:'Last business day of month'},
+    {t:'BOOLEAN',n:'is_quarter_end',d:'Last business day of quarter'},
+    {t:'BOOLEAN',n:'bbsy_reset_applicable',d:'True on BBSY fixing dates'},
+    {t:'VARCHAR',n:'period_label',d:'e.g. Q2-2026 for grouping'},
+  ],uses:['accrual_engine','period_close','rate_reset_schedule']},
+};
+const mappings={
+  stmt:{title:'Investor statement — data source for each line item',rows:[
+    ['Line item','Source table · column','Notes'],
+    ['Investor name','dim_investor.investor_name',''],
+    ['Units held','dim_investor.units_held','At record date'],
+    ['Opening unit value','fund_nav.nav_per_unit (prior period)','Prior period locked row'],
+    ['Closing unit value','fund_nav.nav_per_unit (current)','Current period locked row'],
+    ['Opening balance $','prior nav_per_unit × units_held','Derived at report generation'],
+    ['Income for period','waterfall_distributions.income_entitlement','Gross before fees'],
+    ['Management fee','waterfall_distributions.management_fee','Deducted in waterfall'],
+    ['Net distribution','waterfall_distributions.net_distribution','Cash or reinvested'],
+    ['Closing balance $','current nav_per_unit × units_held',''],
+    ['Period return %','(closing − opening) / opening','Derived'],
+    ['IRR since inception','scipy.xirr on cashflow_schedule','All cashflows from dim_investor.join_date'],
+  ]},
+  pl:{title:'P&L statement — data source for each line item',rows:[
+    ['Line item','Source table · column','Notes'],
+    ['Interest income','SUM(interest_accrual_daily.income_recognised)','Effective interest method per AASB 9'],
+    ['Fee income','SUM(portfolio_summary.total_fees)','Line + commitment + establishment fees'],
+    ['Credit loss provision','Derived from covenant_status.status','ECL model — AASB 9 Stage 1/2/3'],
+    ['Management fee expense','fund_nav.net_asset_value × fee_rate','Accrued monthly'],
+    ['Other expenses','GL / manual','Admin, custody, audit, legal'],
+    ['Net income before dist.','Income − expenses',''],
+    ['Distribution to investors','SUM(waterfall_distributions.net_distribution)','All investors this period'],
+  ]},
+  bs:{title:'Balance sheet — data source for each line item',rows:[
+    ['Line item','Source table · column','Notes'],
+    ['Loan assets (principal)','SUM(loan_positions_daily.closing_balance)','At period_end is_period_end=true'],
+    ['Accrued interest receivable','SUM(loan_positions_daily.accrued_interest_balance)','Unpaid interest = asset'],
+    ['Cash at bank','Bank feed reconciliation table','Reconciled daily balance'],
+    ['Total assets (GAV)','Sum of above assets','= fund_nav.gross_asset_value'],
+    ['Warehouse liabilities','Funding facility balance table','ANZ + CBA + Westpac drawn'],
+    ['Accrued fees payable','Accrued but unpaid fees','From accrual engine'],
+    ['Net assets','fund_nav.net_asset_value','GAV − liabilities'],
+    ['Units on issue','fund_nav.units_on_issue',''],
+    ['NAV per unit','fund_nav.nav_per_unit','Net assets ÷ units — the unit price'],
+  ]},
+  rg45:{title:'RG45 ASIC benchmarks — data source for each benchmark',rows:[
+    ['Benchmark','Source table · derivation','Typical limit'],
+    ['1 — Loan-to-valuation ratio','portfolio_summary: WA LVR across book','< 65%'],
+    ['2 — Loan diversification (borrower)','loan_positions_daily: max single borrower %','< 10%'],
+    ['3 — Related party loans','dim_loan: SUM where is_related_party = true','Disclosed'],
+    ['4 — Loan portfolio diversification','dim_loan: type / sector / state %','Disclosed'],
+    ['5 — Debt maturity','cashflow_schedule: maturity bucket profile','Disclosed'],
+    ['6 — Interest rate risk','interest_accrual_daily: fixed vs floating split','Disclosed'],
+    ['7 — Credit risk','covenant_status: breach count + arrears rate','Disclosed'],
+    ['8 — Liquidity','fund_nav + cashflow_schedule: liquid assets','Disclosed'],
+    ['9 — Scheme borrowing','Funding facility table: gearing ratio','Disclosed'],
+  ]},
+};
+
+function renderDet(d,panelId){
+  const panel=document.getElementById(panelId);
+  let html=`<div class="det-header"><div class="det-title">${d.title}</div><span class="det-tag">${d.tag}</span></div><div class="cols-grid">`;
+  d.cols.forEach(c=>{html+=`<div class="col-item"><div class="col-type">${c.t}</div><div class="col-name">${c.n}</div><div class="col-desc">${c.d}</div></div>`});
+  html+='</div>';
+  if(d.uses&&d.uses.length){html+=`<div class="uses-section"><div class="uses-label">Used in / feeds into</div>`;d.uses.forEach(u=>{html+=`<span class="use-tag">${u}</span>`});html+='</div>';}
+  panel.innerHTML=html;panel.classList.add('show');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function det(k){
+  const d=detData[k];
+  document.querySelectorAll('#pane-lineage .tcard').forEach(c=>c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  renderDet(d,d.panel);
+}
+function schema(k){
+  const d=schemas[k];
+  document.querySelectorAll('#pane-schema .card').forEach(c=>c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  const panel=document.getElementById('det-schema');
+  let html=`<div class="det-header"><div class="det-title">${d.title}</div></div><div class="cols-grid">`;
+  d.cols.forEach(c=>{html+=`<div class="col-item"><div class="col-type">${c.t}</div><div class="col-name">${c.n}</div><div class="col-desc">${c.d}</div></div>`});
+  html+='</div>';
+  if(d.uses&&d.uses.length){html+=`<div class="uses-section"><div class="uses-label">Feeds into</div>`;d.uses.forEach(u=>{html+=`<span class="use-tag">${u}</span>`});html+='</div>';}
+  panel.innerHTML=html;panel.classList.add('show');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function mapping(k){
+  const d=mappings[k];
+  document.querySelectorAll('#pane-mapping .card').forEach(c=>c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  const panel=document.getElementById('det-mapping');
+  const [hdr,...rows]=d.rows;
+  let html=`<div class="det-header"><div class="det-title">${d.title}</div></div><div style="overflow-x:auto"><table class="mapping-tbl"><thead><tr>`;
+  hdr.forEach(h=>{html+=`<th>${h}</th>`});
+  html+='</tr></thead><tbody>';
+  rows.forEach(r=>{html+='<tr>'+r.map((c,i)=>i===1?`<td class="mono-cell">${c}</td>`:`<td>${c}</td>`).join('')+'</tr>'});
+  html+='</tbody></table></div>';
+  panel.innerHTML=html;panel.classList.add('show');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+</script>
+</body>
+</html>

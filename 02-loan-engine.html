@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loan Calculation Engine — Labassa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7F8FC;--surface:#fff;--border:#E3E6F0;--text-primary:#0C1224;--text-secondary:#4A5270;--text-muted:#8890A8;--accent:#0F6E56;--accent-light:#E1F5EE;--purple:#534AB7;--purple-light:#EEEDFE;--amber:#854F0B;--amber-light:#FAEEDA;--coral:#993C1D;--coral-light:#FAECE7;--shadow:0 1px 3px rgba(12,18,36,.07),0 4px 12px rgba(12,18,36,.04)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--bg);color:var(--text-primary);font-size:14px;line-height:1.6}
+a{color:var(--accent);text-decoration:none}
+.topnav{position:sticky;top:0;z-index:100;height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:0}
+.topnav-brand{font-size:13px;font-weight:600;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.topnav-links{display:flex;gap:2px;flex:1;margin:0 24px;overflow-x:auto;scrollbar-width:none}
+.topnav-links::-webkit-scrollbar{display:none}
+.topnav-links a{font-size:12px;color:var(--text-secondary);white-space:nowrap;padding:6px 12px;border-radius:6px;transition:all .15s;text-decoration:none}
+.topnav-links a:hover{background:var(--bg);color:var(--text-primary)}
+.topnav-links a.active{background:var(--purple-light);color:var(--purple);font-weight:500}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px}
+.badge-p1{background:var(--purple-light);color:var(--purple)}
+
+.page{max-width:1100px;margin:0 auto;padding:32px 28px 64px}
+.page-title{font-size:22px;font-weight:600;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--text-muted);margin-bottom:28px}
+.section-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+
+.layer{margin-bottom:4px}
+.layer-arrow{display:flex;justify-content:center;align-items:center;padding:8px 0;gap:10px;color:var(--text-muted);font-size:11px}
+.layer-arrow::before,.layer-arrow::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(max-width:800px){.grid-4,.grid-3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;box-shadow:var(--shadow);cursor:pointer;transition:all .15s}
+.card:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(12,18,36,.09)}
+.card.active{outline:2px solid var(--text-primary);outline-offset:1px}
+.card-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;opacity:.6}
+.card-title{font-size:13px;font-weight:600;margin-bottom:4px;line-height:1.3}
+.card-desc{font-size:11px;opacity:.72;line-height:1.5}
+
+/* color variants */
+.c-coral{background:var(--coral-light);border-color:#F0997B;color:var(--coral)}
+.c-purple{background:var(--purple-light);border-color:#AFA9EC;color:var(--purple)}
+.c-teal{background:var(--accent-light);border-color:#5DCAA5;color:var(--accent)}
+.c-amber{background:var(--amber-light);border-color:#EF9F27;color:var(--amber)}
+.c-gray{background:var(--bg);border-color:var(--border);color:var(--text-secondary)}
+.c-blue{background:#E6F1FB;border-color:#85B7EB;color:#0C447C}
+
+.detail-panel{margin-top:14px;border-radius:10px;padding:16px 18px;border:1px solid var(--border);background:var(--surface);display:none}
+.detail-panel.show{display:block}
+.det-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.det-title{font-size:14px;font-weight:600}
+.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.det-item{background:var(--bg);border-radius:6px;padding:10px 12px;border:1px solid var(--border)}
+.det-name{font-size:11px;font-weight:600;margin-bottom:2px}
+.det-val{font-size:11px;color:var(--text-secondary);line-height:1.4}
+.det-tags{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.det-tags-label{font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
+.det-tag{display:inline-block;font-size:10px;padding:3px 9px;border-radius:10px;background:var(--bg);border:1px solid var(--border);margin:2px 3px 2px 0;color:var(--text-secondary)}
+
+.stack-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.stack-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;color:var(--text-muted)}
+.stack-item{font-size:12px;color:var(--text-secondary);padding:4px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.stack-item:last-child{border-bottom:none}
+.stack-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+
+.decision-box{background:var(--amber-light);border:1px solid #EF9F27;border-radius:10px;padding:16px 18px;margin-top:14px}
+.decision-title{font-size:13px;font-weight:600;color:var(--amber);margin-bottom:8px}
+.decision-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:8px;font-size:12px}
+.decision-row:last-child{margin-bottom:0}
+.decision-col{flex:1}
+.decision-col-label{font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;color:var(--amber)}
+
+.footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between;align-items:center}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-brand"><div class="dot"></div>Labassa</div>
+  <div class="topnav-links">
+    <a href="index.html">Overview</a>
+    <a href="02-loan-engine.html" class="active">Loan engine</a>
+    <a href="03-investor-reporting.html">Investor reporting</a>
+    <a href="04-treasury.html">Treasury dashboard</a>
+    <a href="05-platform.html">All components</a>
+    <a href="06-data-lineage.html">Data lineage</a>
+  </div>
+  <span class="badge badge-p1">Priority 1</span>
+</nav>
+
+<div class="page">
+  <div class="page-title">Loan calculation engine</div>
+  <div class="page-sub">The single source of truth for all financial calculations — feeds every downstream report and investor deliverable.</div>
+
+  <!-- LAYER 1 -->
+  <div class="layer">
+    <div class="section-label">Loan type layer — separate logic per structure</div>
+    <div class="grid-4">
+      <div class="card c-coral" onclick="showDetail('senior')">
+        <div class="card-label">Type 1</div>
+        <div class="card-title">Senior debt</div>
+        <div class="card-desc">Fixed or floating P+I · Actual/365 · BBSY/AONIA margin · Standard amortisation</div>
+      </div>
+      <div class="card c-coral" onclick="showDetail('mezz')">
+        <div class="card-label">Type 2</div>
+        <div class="card-title">Mezzanine</div>
+        <div class="card-desc">PIK interest capitalised · OID discount · Higher margin · Subordinated security</div>
+      </div>
+      <div class="card c-coral" onclick="showDetail('construction')">
+        <div class="card-label">Type 3</div>
+        <div class="card-title">Construction loan</div>
+        <div class="card-desc">Progressive drawdowns · Interest reserve fund · Completion milestones</div>
+      </div>
+      <div class="card c-coral" onclick="showDetail('prefequity')">
+        <div class="card-label">Type 4</div>
+        <div class="card-title">Preferred equity</div>
+        <div class="card-desc">Hurdle return · Carried interest · Return of capital priority</div>
+      </div>
+    </div>
+    <div id="det-loantype" class="detail-panel"></div>
+  </div>
+
+  <div class="layer-arrow">daily ETL via Airflow · normalise all types into common cashflow model</div>
+
+  <!-- LAYER 2 -->
+  <div class="layer">
+    <div class="section-label">Calculation engine — Python + dbt + Snowflake</div>
+    <div class="grid-4">
+      <div class="card c-purple" onclick="showDetail('cashflow')">
+        <div class="card-label">Module 1</div>
+        <div class="card-title">Cashflow model</div>
+        <div class="card-desc">Scheduled principal · interest · fees · penalties — per loan per day</div>
+      </div>
+      <div class="card c-purple" onclick="showDetail('accrual')">
+        <div class="card-label">Module 2</div>
+        <div class="card-title">Accrual engine</div>
+        <div class="card-desc">Daily interest accrual · Actual/365 · 30/360 · BBSY resets · PIK capitalisation</div>
+      </div>
+      <div class="card c-purple" onclick="showDetail('rateengine')">
+        <div class="card-label">Module 3</div>
+        <div class="card-title">Rate engine</div>
+        <div class="card-desc">BBSY/AONIA + margin · rate reset schedule · cap/floor overlay · hedge accounting</div>
+      </div>
+      <div class="card c-purple" onclick="showDetail('covenants')">
+        <div class="card-label">Module 4</div>
+        <div class="card-title">Covenant tracker</div>
+        <div class="card-desc">LVR · ICR · DSCR — automated breach detection · waiver log · cure period tracking</div>
+      </div>
+    </div>
+    <div id="det-calcengine" class="detail-panel"></div>
+  </div>
+
+  <div class="layer-arrow">dbt mart layer · period aggregations</div>
+
+  <!-- LAYER 3 -->
+  <div class="layer">
+    <div class="section-label">Aggregation layer — fund and portfolio level</div>
+    <div class="grid-3">
+      <div class="card c-teal" onclick="showDetail('positions')">
+        <div class="card-label">Aggregate 1</div>
+        <div class="card-title">Portfolio positions</div>
+        <div class="card-desc">Gross/net exposure · WA rate · WA maturity · duration · concentration by sector/state</div>
+      </div>
+      <div class="card c-teal" onclick="showDetail('waterfall')">
+        <div class="card-label">Aggregate 2</div>
+        <div class="card-title">Waterfall engine</div>
+        <div class="card-desc">Senior → mezz → preferred equity → equity · per-investor distribution amounts</div>
+      </div>
+      <div class="card c-teal" onclick="showDetail('performance')">
+        <div class="card-label">Aggregate 3</div>
+        <div class="card-title">Performance metrics</div>
+        <div class="card-desc">IRR (XIRR) · MOIC · DPI · RVPI · TWR · MWR · fund-level NAV per unit</div>
+      </div>
+    </div>
+    <div id="det-aggregation" class="detail-panel"></div>
+  </div>
+
+  <div class="layer-arrow">period lock · immutable audit snapshot</div>
+
+  <!-- OUTPUT -->
+  <div class="layer">
+    <div class="section-label">Data warehouse outputs — Snowflake / Azure Synapse</div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 18px;font-size:12px;color:var(--text-secondary);font-family:'IBM Plex Mono',monospace;line-height:2">
+      loan_positions_daily &nbsp;·&nbsp; interest_accrual_daily &nbsp;·&nbsp; cashflow_schedule &nbsp;·&nbsp; covenant_status &nbsp;·&nbsp; portfolio_summary &nbsp;·&nbsp; waterfall_distributions &nbsp;·&nbsp; fund_nav
+    </div>
+  </div>
+
+  <div class="layer-arrow">feeds all downstream systems</div>
+
+  <!-- CONSUMERS -->
+  <div class="layer">
+    <div class="section-label">Downstream consumers</div>
+    <div class="grid-3">
+      <div class="card c-blue"><div class="card-title">Investor reporting</div><div class="card-desc">Statements · NAV · IRR · distribution notices</div></div>
+      <div class="card c-blue"><div class="card-title">Treasury dashboard</div><div class="card-desc">Liquidity · limits · covenant watchlist · hedging</div></div>
+      <div class="card c-blue"><div class="card-title">ASIC compliance</div><div class="card-desc">RG45 benchmarks · RG133 quarterly lodge · audit trail</div></div>
+    </div>
+  </div>
+
+  <!-- BUILD VS BUY -->
+  <div class="decision-box">
+    <div class="decision-title">Build vs buy decision</div>
+    <div class="decision-row">
+      <div class="decision-col">
+        <div class="decision-col-label">Buy — loan system of record</div>
+        <div style="font-size:12px;color:var(--amber)">Loanworks (AU-native) or SAMS for structured finance. These handle operational loan management — drawdowns, repayments, facility amendments. They become the source that feeds the warehouse.</div>
+      </div>
+      <div class="decision-col">
+        <div class="decision-col-label">Build — calculation engine</div>
+        <div style="font-size:12px;color:var(--amber)">Python (pandas/numpy/scipy) + dbt + Snowflake. Every calculation is version-controlled in Git, testable with pytest, and auditable. Enterprise loan systems (Loan IQ, nCino) are bank-grade overkill at $600M.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TECH STACK -->
+  <div style="margin-top:28px">
+    <div class="section-label">Technology stack</div>
+    <div class="grid-3">
+      <div class="stack-card">
+        <div class="stack-label">Core calculation</div>
+        <div class="stack-item"><div class="stack-dot" style="background:var(--purple)"></div>Python 3.11 — calculation logic</div>
+        <div class="stack-item"><div class="stack-dot" style="background:var(--purple)"></div>pandas + numpy — data manipulation</div>
+        <div class="stack-item"><div class="stack-dot" style="background:var(--purple)"></div>scipy — IRR/XIRR/NPV functions</div>
+        <div class="stack-item"><div class="stack-dot" style="background:var(--purple)"></div>pytest — automated test suite</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-label">Data &amp; pipeline</div>
+        <div class="stack-item"><div class="stack-dot" style="background:var(--accent)"></div>Snowflake — financial data warehouse</div>
+        <div class="stack-item"><div class="stack-dot" style="background:var(--accent)"></div>dbt Cloud — SQL transformations</div>
+        <div class="stack-item"><div class="stack-dot" style="background:var(--accent)"></div>Apache Airflow — orchestration</div>
+        <div class="stack-item"><div class="stack-dot" style="background:var(--accent)"></div>Great Expectations — data quality</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-label">Loan system of record</div>
+        <div class="stack-item"><div class="stack-dot" style="background:var(--coral)"></div>Loanworks (AU-native) — recommended</div>
+        <div class="stack-item"><div class="stack-dot" style="background:var(--coral)"></div>SAMS — structured asset mgmt</div>
+        <div class="stack-item"><div class="stack-dot" style="background:var(--coral)"></div>nCino — if bank-grade req'd</div>
+        <div class="stack-item"><div class="stack-dot" style="background:var(--coral)"></div>Source feeds via API or SFTP</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="index.html">← Back to overview</a>
+    <a href="03-investor-reporting.html">Investor reporting →</a>
+  </div>
+</div>
+
+<script>
+const details = {
+  senior:{group:'det-loantype',title:'Senior debt calculation logic',items:[
+    {n:'Day count',v:'Actual/365 — standard for Australian project finance. Count exact days between payment dates.'},
+    {n:'Rate type',v:'Floating — BBSY + credit margin. Rate resets quarterly (or per loan agreement). Transitioning to AONIA.'},
+    {n:'Payment structure',v:'Principal + interest (P+I) or interest-only (IO) during construction, converting to P+I on completion.'},
+    {n:'Fee accrual',v:'Line fee on undrawn commitment (typically 0.5–1.0% p.a.) + establishment fee amortised over term.'},
+  ],tags:['loan_positions_daily','interest_accrual_daily','cashflow_schedule']},
+  mezz:{group:'det-loantype',title:'Mezzanine loan calculation logic',items:[
+    {n:'PIK interest',v:'Pay-in-Kind — interest capitalised to principal balance rather than paid in cash. Compounds the outstanding balance.'},
+    {n:'OID (Original Issue Discount)',v:'Difference between face value and issue price. Amortised to interest income using effective interest method (AASB 9).'},
+    {n:'Higher margin',v:'Typically BBSY + 5–8% reflecting subordinated position. Requires separate rate engine configuration.'},
+    {n:'Capitalisation frequency',v:'Usually monthly. PIK balance accrues interest on itself — exponential growth requires careful modelling.'},
+  ],tags:['loan_positions_daily','interest_accrual_daily.pik_accrual']},
+  construction:{group:'det-loantype',title:'Construction loan calculation logic',items:[
+    {n:'Progressive drawdowns',v:'Multiple drawdown events against a single facility limit. Balance grows as construction progresses.'},
+    {n:'Interest reserve',v:'Portion of facility reserved to capitalise interest during construction — common in residential development loans.'},
+    {n:'Milestone triggers',v:'Drawdown conditions (DA approval, slab, lock-up, completion) — logged in loan_drawdown with purpose flag.'},
+    {n:'Conversion',v:'On practical completion, construction loan converts to term loan — rate and payment structure change.'},
+  ],tags:['loan_drawdown','cashflow_schedule','loan_positions_daily']},
+  prefequity:{group:'det-loantype',title:'Preferred equity calculation logic',items:[
+    {n:'Preferred return (hurdle)',v:'Fixed preferred return (e.g. 8% p.a.) paid to preferred equity investors before common equity shares in returns.'},
+    {n:'Carried interest',v:'After hurdle, remaining returns split per waterfall — e.g. 20% carry to manager, 80% to investor.'},
+    {n:'Return of capital first',v:'Preferred equity gets capital back before common equity receives anything — critical waterfall order.'},
+    {n:'IRR-based hurdle',v:'Some structures use IRR hurdle rather than simple return — requires full cashflow XIRR calculation.'},
+  ],tags:['waterfall_distributions','performance_metrics']},
+  cashflow:{group:'det-calcengine',title:'Cashflow model',items:[
+    {n:'Amortisation schedule',v:'Generates full payment schedule from origination to maturity — principal, interest and fee cashflows per period.'},
+    {n:'Scheduled vs actual',v:'System stores both scheduled (contractual) and actual (received) cashflows — variance drives arrears classification.'},
+    {n:'Prepayment handling',v:'Full or partial prepayments reduce balance and recalculate future schedule. Break cost calculated if applicable.'},
+    {n:'Interest-only periods',v:'IO periods generate interest-only cashflows — principal balance flat until IO period ends.'},
+  ],tags:['cashflow_schedule','loan_positions_daily']},
+  accrual:{group:'det-calcengine',title:'Accrual engine',items:[
+    {n:'Daily accrual formula',v:'daily_interest = outstanding_balance × all_in_rate / 365. Runs for every loan every calendar day.'},
+    {n:'Day count conventions',v:'Actual/365 (standard AU project finance) · 30/360 (some structured products) · Actual/360 (US-origin deals).'},
+    {n:'BBSY/AONIA rate resets',v:'Rate resets on contractual dates. Engine looks up the rate_reset table for the applicable base rate on each accrual day.'},
+    {n:'Effective interest method',v:'AASB 9 requires income recognition using effective interest rate — accounts for fees and OID in the yield calculation.'},
+  ],tags:['interest_accrual_daily','income_recognised']},
+  rateengine:{group:'det-calcengine',title:'Rate engine',items:[
+    {n:'BBSY transition',v:'Australian market transitioning from BBSY (Bank Bill Swap Rate) to AONIA (Australian Overnight Index Average). Engine handles both.'},
+    {n:'Rate reset schedule',v:'Each loan has a reset frequency (monthly, quarterly). Engine fetches current BBSY/AONIA from Refinitiv/Bloomberg feed on reset date.'},
+    {n:'Cap and floor',v:'Interest rate caps/floors overlay the base rate calculation — e.g. all-in rate cannot exceed 12% regardless of BBSY movement.'},
+    {n:'Hedge accounting',v:'IRS positions reduce effective floating rate exposure. Hedge-adjusted rate used for net interest income reporting.'},
+  ],tags:['rate_reset','interest_accrual_daily.base_rate']},
+  covenants:{group:'det-calcengine',title:'Covenant tracker',items:[
+    {n:'LVR (Loan-to-Value Ratio)',v:'Outstanding balance ÷ current valuation. Trigger typically 65–70% for senior debt. Requires current valuations from valuation feed.'},
+    {n:'ICR (Interest Coverage Ratio)',v:'Net operating income ÷ interest expense. Measures borrower\'s ability to service interest — trigger typically 1.5x.'},
+    {n:'DSCR (Debt Service Coverage)',v:'Net operating income ÷ total debt service (P+I). Stricter than ICR — typically 1.25x minimum for project finance.'},
+    {n:'Breach workflow',v:'Breach detected → email alert to credit team → waiver log entry → cure period countdown → escalation if not resolved.'},
+  ],tags:['covenant_status','treasury_dashboard','RG45_benchmark_7']},
+  positions:{group:'det-aggregation',title:'Portfolio positions',items:[
+    {n:'Weighted average rate',v:'Sum(balance × rate) / Sum(balance) — reflects true average yield across the book.'},
+    {n:'Weighted average maturity',v:'Sum(balance × remaining_years) / Sum(balance) — key metric for duration and refinancing risk.'},
+    {n:'Concentration analysis',v:'Single borrower, sector and geographic split — compared to mandate limits from fund constitution.'},
+    {n:'Construction loan %',v:'Construction loans as % of total book — monitored against warehouse facility covenant (typically < 25%).'},
+  ],tags:['portfolio_summary','treasury_dashboard']},
+  waterfall:{group:'det-aggregation',title:'Waterfall engine',items:[
+    {n:'Distribution order',v:'1. Operating expenses → 2. Senior debt service → 3. Debt service reserve → 4. Mezz interest → 5. Mezz principal → 6. Preferred equity return → 7. Common equity'},
+    {n:'Configurable per fund',v:'Each Labassa fund has its own waterfall_config (stored as JSON in dim_fund). Engine reads config at runtime — no hard-coding.'},
+    {n:'Per-investor allocation',v:'After waterfall, net income allocated to investors pro-rata by units held. Management and performance fees deducted.'},
+    {n:'Catch-up and carry',v:'After preferred return is met, remaining returns split per carry arrangement. Accumulated deficit tracked across periods.'},
+  ],tags:['waterfall_distributions','distribution_notice']},
+  performance:{group:'det-aggregation',title:'Performance metrics',items:[
+    {n:'IRR (Internal Rate of Return)',v:'scipy.optimize.xirr on all investor cashflows (contributions negative, distributions positive). Inception-to-date and period returns.'},
+    {n:'MOIC (Multiple on Invested Capital)',v:'Total value distributed + NAV / total capital invested. Simple multiple — most intuitive for investors.'},
+    {n:'DPI (Distributions to Paid-In)',v:'Total distributions / total capital called. Shows how much capital has been returned — cash-on-cash measure.'},
+    {n:'TWR vs MWR',v:'Time-weighted return (removes effect of investor timing) vs money-weighted (accounts for timing). Both reported.'},
+  ],tags:['fund_nav','investor_statement.irr_since_inception']},
+};
+
+function showDetail(k) {
+  const d = details[k];
+  const el = document.getElementById('det-'+d.group.replace('det-',''));
+  const panelId = 'det-' + d.group;
+  const panel = document.getElementById(d.group);
+  let html = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="font-size:14px;font-weight:600">${d.title}</div></div>`;
+  html += '<div class="detail-grid">';
+  d.items.forEach(i=>{html+=`<div class="det-item"><div class="det-name">${i.n}</div><div class="det-val">${i.v}</div></div>`});
+  html += '</div>';
+  if(d.tags&&d.tags.length){
+    html+=`<div class="det-tags"><div class="det-tags-label">Writes to / reads from</div>`;
+    d.tags.forEach(t=>{html+=`<span class="det-tag" style="font-family:'IBM Plex Mono',monospace">${t}</span>`});
+    html+='</div>';
+  }
+  panel.innerHTML=html;
+  panel.classList.add('show');
+  document.querySelectorAll('.card').forEach(c=>c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+</script>
+</body>
+</html>
