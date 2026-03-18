@@ -7,308 +7,918 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+/* ─── TOKENS ─────────────────────────────────────────── */
 :root {
-  --bg:#F7F8FC;--surface:#fff;--border:#E3E6F0;--text-primary:#0C1224;
-  --text-secondary:#4A5270;--text-muted:#8890A8;--accent:#0F6E56;
-  --accent-light:#E1F5EE;--accent-mid:#1D9E75;--purple:#534AB7;
-  --purple-light:#EEEDFE;--amber:#854F0B;--amber-light:#FAEEDA;
-  --coral:#993C1D;--coral-light:#FAECE7;--blue:#185FA5;--blue-light:#E6F1FB;
-  --shadow:0 1px 3px rgba(12,18,36,.07),0 4px 12px rgba(12,18,36,.04);
+  --bg: #F7F8FC;
+  --surface: #FFFFFF;
+  --border: #E3E6F0;
+  --text-primary: #0C1224;
+  --text-secondary: #4A5270;
+  --text-muted: #8890A8;
+
+  --purple: #534AB7;   --purple-mid: #7F77DD;   --purple-light: #EEEDFE;   --purple-border: #C4C0F0;
+  --teal: #0F6E56;     --teal-mid: #1D9E75;     --teal-light: #E1F5EE;     --teal-border: #8FD6BA;
+  --coral: #993C1D;                              --coral-light: #FAECE7;    --coral-border: #F0B09A;
+  --blue: #185FA5;                               --blue-light: #E6F1FB;     --blue-border: #93C4EF;
+  --amber: #854F0B;                              --amber-light: #FDF3E3;    --amber-border: #F5C97A;
+  --gray-light: #F1EFE8;                         --gray-border: #CCC9BE;
+  --red: #A32D2D;      --red-light: #FCEBEB;
+  --green: #27500A;    --green-light: #EAF3DE;
+
+  --shadow-sm: 0 1px 3px rgba(12,18,36,.06), 0 2px 8px rgba(12,18,36,.04);
+  --shadow: 0 2px 6px rgba(12,18,36,.07), 0 6px 18px rgba(12,18,36,.05);
+  --shadow-lg: 0 4px 16px rgba(12,18,36,.10);
+  --radius: 10px; --radius-sm: 6px; --radius-lg: 14px; --radius-xl: 20px;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--bg);color:var(--text-primary);font-size:14px;line-height:1.6}
-a{color:var(--accent);text-decoration:none}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'IBM Plex Sans', system-ui, sans-serif; background: var(--bg); color: var(--text-primary); font-size: 14px; line-height: 1.6; }
+a { color: var(--teal); text-decoration: none; }
 
-.topnav{position:sticky;top:0;z-index:100;height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:0}
-.topnav-brand{font-size:13px;font-weight:600;letter-spacing:.02em;margin-right:auto;display:flex;align-items:center;gap:8px}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
-.badge-live{font-size:10px;font-weight:600;letter-spacing:.06em;padding:3px 8px;border-radius:20px;background:var(--accent-light);color:var(--accent);text-transform:uppercase}
-
-.hero{padding:56px 28px 40px;max-width:1200px;margin:0 auto}
-.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
-.hero-title{font-size:36px;font-weight:300;color:var(--text-primary);line-height:1.2;margin-bottom:8px}
-.hero-title strong{font-weight:600}
-.hero-sub{font-size:15px;color:var(--text-secondary);max-width:560px;line-height:1.7;margin-bottom:32px}
-.hero-stats{display:flex;gap:32px;flex-wrap:wrap}
-.stat-block{border-left:2px solid var(--accent);padding-left:14px}
-.stat-val{font-size:22px;font-weight:600;color:var(--text-primary);line-height:1}
-.stat-label{font-size:11px;color:var(--text-muted);margin-top:3px}
-
-.divider{height:1px;background:var(--border);margin:0 28px}
-
-.section{max-width:1200px;margin:0 auto;padding:40px 28px}
-.section-header{display:flex;align-items:baseline;gap:10px;margin-bottom:20px}
-.section-title{font-size:16px;font-weight:600}
-.section-sub{font-size:12px;color:var(--text-muted)}
-
-.nav-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-@media(max-width:900px){.nav-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:540px){.nav-grid{grid-template-columns:1fr}}
-
-.nav-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:12px;
-  padding:22px 22px 18px;cursor:pointer;transition:all .2s;
-  display:block;text-decoration:none;color:inherit;position:relative;
-  box-shadow:var(--shadow);
+/* ─── NAV ────────────────────────────────────────────── */
+.topnav {
+  position: sticky; top: 0; z-index: 200; height: 56px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 28px;
 }
-.nav-card:hover{transform:translateY(-3px);box-shadow:0 4px 16px rgba(12,18,36,.1);border-color:var(--border);text-decoration:none}
-.nav-card:hover .arrow{opacity:1;transform:translateX(3px)}
-.card-icon{width:38px;height:38px;border-radius:8px;margin-bottom:14px;display:flex;align-items:center;justify-content:center}
-.card-num{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;font-family:'IBM Plex Mono',monospace}
-.card-name{font-size:15px;font-weight:600;margin-bottom:6px;line-height:1.3}
-.card-desc{font-size:12px;color:var(--text-secondary);line-height:1.6}
-.card-footer{margin-top:16px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.card-tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px}
-.arrow{font-size:16px;color:var(--text-muted);transition:all .2s;opacity:.5}
+.topnav-brand { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); }
+.topnav-links { display: flex; gap: 2px; flex: 1; margin: 0 20px; overflow-x: auto; scrollbar-width: none; }
+.topnav-links::-webkit-scrollbar { display: none; }
+.topnav-links a { font-size: 12px; color: var(--text-secondary); white-space: nowrap; padding: 5px 11px; border-radius: var(--radius-sm); transition: all .15s; text-decoration: none; }
+.topnav-links a:hover { background: var(--bg); color: var(--text-primary); }
+.topnav-links a.on { background: var(--teal-light); color: var(--teal); font-weight: 500; }
+.conf-badge { font-size: 10px; font-weight: 600; letter-spacing: .06em; padding: 3px 9px; border-radius: 20px; background: var(--teal-light); color: var(--teal); text-transform: uppercase; white-space: nowrap; }
 
-.phase-section{margin-top:8px}
-.phase-title{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.phase-title::after{content:'';flex:1;height:1px;background:var(--border)}
-.phase-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
-.phase-chip{font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);color:var(--text-secondary);background:var(--surface);font-weight:500}
+/* ─── SECTIONS ───────────────────────────────────────── */
+.sec { max-width: 1100px; margin: 0 auto; padding: 52px 28px; }
+.sec + .divider { height: 1px; background: var(--border); margin: 0 28px; }
+.sec-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+.sec-title { font-size: 22px; font-weight: 600; margin-bottom: 10px; line-height: 1.25; }
+.sec-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.75; max-width: 720px; }
 
-.timeline{margin-top:40px}
-.timeline-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.tl-col{padding:18px 18px 20px;border-right:1px solid var(--border)}
-.tl-col:last-child{border-right:none}
-.tl-phase{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
-.tl-period{font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text-primary)}
-.tl-item{font-size:11px;color:var(--text-secondary);padding:3px 0;display:flex;align-items:flex-start;gap:6px}
-.tl-item::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;margin-top:5px}
-.tl-p1{color:var(--purple)}.tl-p2{color:var(--accent)}.tl-p3{color:var(--blue)}.tl-p4{color:var(--text-muted)}
+/* ─── HERO ───────────────────────────────────────────── */
+.hero { max-width: 1100px; margin: 0 auto; padding: 56px 28px 44px; }
+.hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--teal); margin-bottom: 14px; }
+.hero-title { font-size: 38px; font-weight: 300; line-height: 1.18; margin-bottom: 10px; }
+.hero-title strong { font-weight: 600; }
+.hero-sub { font-size: 15px; color: var(--text-secondary); max-width: 640px; line-height: 1.78; margin-bottom: 36px; }
+.hero-stats { display: flex; gap: 36px; flex-wrap: wrap; }
+.stat { border-left: 2px solid var(--teal); padding-left: 14px; }
+.stat-val { font-size: 24px; font-weight: 600; line-height: 1; }
+.stat-label { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
 
-.footer{margin-top:48px;border-top:1px solid var(--border);padding:20px 28px;max-width:1200px;margin:48px auto 0;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text-muted)}
+/* ─── EXEC SUMMARY ───────────────────────────────────── */
+.summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 28px; }
+@media(max-width:700px) { .summary-grid { grid-template-columns: 1fr; } }
+.summary-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 20px 22px; box-shadow: var(--shadow-sm);
+}
+.summary-card.accent { background: var(--teal-light); border-color: var(--teal-border); }
+.summary-card-icon { width: 36px; height: 36px; border-radius: 8px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; }
+.summary-card-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.summary-card-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.65; }
+.summary-card.accent .summary-card-desc { color: var(--teal); }
+
+.pain-points { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+.pain-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 16px;
+}
+.pain-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; font-weight: 700; }
+.pain-text { font-size: 12px; color: var(--text-secondary); line-height: 1.55; }
+.pain-text strong { color: var(--text-primary); font-weight: 600; display: block; margin-bottom: 1px; }
+
+/* ─── ARCHITECTURE DIAGRAM ───────────────────────────── */
+.arch-diagram {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); padding: 28px;
+  box-shadow: var(--shadow);
+}
+
+/* diagram boxes */
+.dbox {
+  border-radius: 14px; padding: 16px 20px; text-align: center;
+  border: 1px solid; transition: all .18s; cursor: pointer;
+}
+.dbox:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); opacity: .92; }
+.dbox.active { outline: 2.5px solid var(--text-primary); outline-offset: 2px; }
+.dbox-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.dbox-sub { font-size: 11px; opacity: .78; }
+
+/* colour variants */
+.dbox-gray   { background: var(--gray-light);   border-color: var(--gray-border);   color: #444441; }
+.dbox-purple { background: var(--purple-light);  border-color: var(--purple-border); color: var(--purple); }
+.dbox-teal   { background: var(--teal-light);    border-color: var(--teal-border);   color: var(--teal); }
+.dbox-coral  { background: var(--coral-light);   border-color: var(--coral-border);  color: var(--coral); }
+.dbox-blue   { background: var(--blue-light);    border-color: var(--blue-border);   color: var(--blue); }
+.dbox-amber  { background: var(--amber-light);   border-color: var(--amber-border);  color: var(--amber); }
+
+/* arrow connectors */
+.arrow-col { display: flex; justify-content: center; align-items: center; }
+.arrow-down { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.arrow-down .line { width: 1.5px; background: var(--border); flex: 1; min-height: 18px; }
+.arrow-down .tip { width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid var(--border); }
+.arrow-right { display: flex; align-items: center; gap: 0; height: 100%; }
+.arrow-right .line { height: 1.5px; background: var(--border); flex: 1; }
+.arrow-right .tip { width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 7px solid var(--border); }
+
+/* diagram layout rows */
+.d-row { display: grid; align-items: stretch; gap: 0; margin: 0; }
+.d-row-arrows { display: grid; gap: 0; height: 36px; align-items: center; }
+.d-full { grid-template-columns: 1fr; }
+.d-2col { grid-template-columns: 1fr 40px 1fr; }
+.d-3col { grid-template-columns: 1fr 20px 1fr 20px 1fr; }
+.d-3col-eq { grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.d-arrows-2 { grid-template-columns: 1fr 40px 1fr; }
+.d-arrows-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+/* legend */
+.arch-legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+.leg { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--text-secondary); }
+.leg-box { width: 18px; height: 18px; border-radius: 4px; border: 1px solid; flex-shrink: 0; }
+
+/* arch detail panel */
+.arch-detail {
+  margin-top: 18px; border-radius: var(--radius); padding: 18px 20px;
+  border: 1px solid var(--border); background: var(--bg); display: none;
+}
+.arch-detail.show { display: block; }
+.ad-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+.ad-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+@media(max-width:600px) { .ad-grid { grid-template-columns: 1fr; } }
+.ad-item { background: var(--surface); border-radius: var(--radius-sm); padding: 9px 11px; border: 1px solid var(--border); }
+.ad-label { font-size: 11px; font-weight: 600; margin-bottom: 2px; }
+.ad-val { font-size: 11px; color: var(--text-secondary); line-height: 1.45; }
+.ad-tags { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.ad-tag { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); margin: 2px 3px 2px 0; color: var(--text-secondary); font-family: 'IBM Plex Mono', monospace; }
+
+/* ─── COMPONENT SECTIONS ─────────────────────────────── */
+.comp-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 28px; }
+.comp-num-badge { font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; white-space: nowrap; margin-top: 2px; }
+
+.layer-wrap { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 6px; }
+.layer-head { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 10px 16px; background: var(--bg); border-bottom: 1px solid var(--border); color: var(--text-muted); }
+.layer-body { padding: 14px; }
+
+.card-grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; }
+.card-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+.card-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+@media(max-width:800px) { .card-grid-4 { grid-template-columns: 1fr 1fr; } .card-grid-3 { grid-template-columns: 1fr 1fr; } }
+@media(max-width:500px) { .card-grid-4, .card-grid-3, .card-grid-2 { grid-template-columns: 1fr; } }
+
+.mcard {
+  border-radius: 8px; padding: 11px 13px; cursor: pointer; border: 1px solid transparent;
+  transition: all .15s;
+}
+.mcard:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.mcard.active { outline: 2px solid var(--text-primary); outline-offset: 1px; }
+.mcard-num { font-size: 10px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; opacity: .55; margin-bottom: 3px; }
+.mcard-name { font-size: 12px; font-weight: 600; margin-bottom: 3px; line-height: 1.3; }
+.mcard-desc { font-size: 11px; opacity: .7; line-height: 1.4; }
+
+.mc-purple { background: var(--purple-light); border-color: var(--purple-border); color: var(--purple); }
+.mc-teal   { background: var(--teal-light);   border-color: var(--teal-border);   color: var(--teal); }
+.mc-coral  { background: var(--coral-light);  border-color: var(--coral-border);  color: var(--coral); }
+.mc-blue   { background: var(--blue-light);   border-color: var(--blue-border);   color: var(--blue); }
+.mc-amber  { background: var(--amber-light);  border-color: var(--amber-border);  color: var(--amber); }
+.mc-gray   { background: var(--gray-light);   border-color: var(--gray-border);   color: #444; }
+
+.comp-detail {
+  margin-top: 10px; border-radius: var(--radius); padding: 16px 18px;
+  border: 1px solid var(--border); background: var(--surface); display: none;
+}
+.comp-detail.show { display: block; }
+.cd-title { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+.cd-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 7px; }
+@media(max-width:600px) { .cd-grid { grid-template-columns: 1fr; } }
+.cd-item { background: var(--bg); border-radius: var(--radius-sm); padding: 9px 11px; border: 1px solid var(--border); }
+.cd-name { font-size: 11px; font-weight: 600; margin-bottom: 2px; }
+.cd-val { font-size: 11px; color: var(--text-secondary); line-height: 1.45; }
+.cd-tags { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.cd-tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 10px; background: var(--bg); border: 1px solid var(--border); margin: 2px 2px 2px 0; color: var(--text-secondary); font-family: 'IBM Plex Mono', monospace; }
+
+/* engine container */
+.engine-box { background: var(--purple-light); border: 1px solid var(--purple-border); border-radius: var(--radius); padding: 14px; }
+.engine-label { font-size: 11px; font-weight: 600; color: var(--purple); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.engine-label::after { content: ''; flex: 1; height: 1px; background: var(--purple-border); opacity: .5; }
+
+.dw-bar { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; text-align: center; font-size: 11px; font-family: 'IBM Plex Mono', monospace; color: var(--text-secondary); line-height: 1.9; }
+
+.layer-arrow { display: flex; justify-content: center; align-items: center; padding: 8px 0; gap: 10px; color: var(--text-muted); font-size: 11px; }
+.layer-arrow::before, .layer-arrow::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* build vs buy box */
+.bvb { background: var(--amber-light); border: 1px solid var(--amber-border); border-radius: var(--radius); padding: 16px 18px; margin-top: 12px; }
+.bvb-title { font-size: 12px; font-weight: 600; color: var(--amber); margin-bottom: 10px; }
+.bvb-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media(max-width:600px) { .bvb-cols { grid-template-columns: 1fr; } }
+.bvb-col-h { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--amber); margin-bottom: 4px; }
+.bvb-col-t { font-size: 11px; color: var(--amber); line-height: 1.6; }
+
+/* tech stack cards */
+.stack-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin-top: 14px; }
+@media(max-width:700px) { .stack-row { grid-template-columns: 1fr 1fr; } }
+@media(max-width:450px) { .stack-row { grid-template-columns: 1fr; } }
+.stack-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 15px; }
+.stack-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; color: var(--text-muted); }
+.stack-item { font-size: 11px; color: var(--text-secondary); padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 6px; }
+.stack-item:last-child { border-bottom: none; }
+.sdot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+/* period-close steps */
+.steps-row { display: flex; gap: 0; }
+@media(max-width:600px) { .steps-row { flex-direction: column; } }
+.step { flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 12px 14px; }
+.step:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+.step:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+.step + .step { border-left: none; }
+@media(max-width:600px) {
+  .step:first-child { border-radius: var(--radius) var(--radius) 0 0; }
+  .step:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+  .step + .step { border-left: 1px solid var(--border); border-top: none; }
+}
+.step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--teal-light); color: var(--teal); font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; margin-bottom: 7px; }
+.step-title { font-size: 11px; font-weight: 600; margin-bottom: 3px; }
+.step-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
+
+/* statement preview */
+.stmt { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+.stmt-hd { background: var(--text-primary); color: #fff; padding: 14px 18px; }
+.stmt-hd-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.stmt-hd-sub { font-size: 11px; opacity: .55; }
+.stmt-bd { padding: 14px 18px; }
+.stmt-sec { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); padding: 8px 0 4px; }
+.stmt-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.stmt-row:last-child { border-bottom: none; }
+.stmt-lbl { color: var(--text-secondary); }
+.stmt-val { font-family: 'IBM Plex Mono', monospace; font-weight: 500; }
+
+/* source map */
+.src-map { display: flex; flex-direction: column; gap: 5px; }
+.src-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; gap: 8px; }
+.src-lbl { color: var(--text-secondary); flex-shrink: 0; }
+.src-tbl { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--teal); text-align: right; }
+
+/* ─── NAV CARDS (all components) ─────────────────────── */
+.nav-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+@media(max-width:900px) { .nav-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media(max-width:540px) { .nav-grid { grid-template-columns: 1fr; } }
+.nav-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 22px 22px 18px; cursor: pointer; transition: all .2s;
+  display: block; text-decoration: none; color: inherit; position: relative;
+  box-shadow: var(--shadow-sm);
+}
+.nav-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); text-decoration: none; }
+.nav-card:hover .arr { opacity: 1; transform: translateX(3px); }
+.nc-icon { width: 36px; height: 36px; border-radius: 8px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; }
+.nc-num { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; }
+.nc-name { font-size: 14px; font-weight: 600; margin-bottom: 5px; line-height: 1.3; }
+.nc-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+.nc-footer { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.nc-tag { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
+.arr { font-size: 16px; color: var(--text-muted); transition: all .2s; opacity: .5; }
+
+.badge-p1 { background: var(--purple-light); color: var(--purple); }
+.badge-p2 { background: var(--teal-light); color: var(--teal); }
+.badge-ph2 { background: var(--coral-light); color: var(--coral); }
+.badge-ref { background: var(--purple-light); color: var(--purple); }
+
+.phase-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.phase-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ─── TIMELINE ───────────────────────────────────────── */
+.tl-grid { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+@media(max-width:700px) { .tl-grid { grid-template-columns: 1fr 1fr; } }
+@media(max-width:400px) { .tl-grid { grid-template-columns: 1fr; } }
+.tl-col { padding: 18px 18px 20px; border-right: 1px solid var(--border); }
+.tl-col:last-child { border-right: none; }
+.tl-phase { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+.tl-period { font-size: 12px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary); }
+.tl-item { font-size: 11px; color: var(--text-secondary); padding: 3px 0; display: flex; align-items: flex-start; gap: 6px; }
+.tl-item::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; margin-top: 5px; }
+.tl-p1 { color: var(--purple); } .tl-p2 { color: var(--teal); } .tl-p3 { color: var(--blue); } .tl-p4 { color: var(--text-muted); }
+
+/* ─── FOOTER ─────────────────────────────────────────── */
+.page-footer { border-top: 1px solid var(--border); padding: 20px 28px; max-width: 1100px; margin: 40px auto 0; display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); }
 </style>
 </head>
 <body>
 
+<!-- ══ NAV ══════════════════════════════════════════ -->
 <nav class="topnav">
-  <div class="topnav-brand">
-    <div class="dot"></div>
-    Labassa — Digital Platform
+  <div class="topnav-brand"><div class="dot"></div>Labassa — Digital Platform</div>
+  <div class="topnav-links">
+    <a href="#summary" class="on">Overview</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#component1">Loan engine</a>
+    <a href="#component2">Investor reporting</a>
+    <a href="#components">All components</a>
+    <a href="#timeline">Timeline</a>
   </div>
-  <span class="badge-live">Confidential</span>
+  <span class="conf-badge">Confidential</span>
 </nav>
 
+<!-- ══ HERO ═════════════════════════════════════════ -->
 <div class="hero">
-  <div class="hero-eyebrow">Digital transformation proposal</div>
+  <div class="hero-eyebrow">Digital transformation proposal · 2025</div>
   <h1 class="hero-title">Labassa Capital<br><strong>Integrated Operations Platform</strong></h1>
-  <p class="hero-sub">A full-stack digitalisation of loan management, investor reporting, fund administration, compliance, and knowledge management — purpose-built for a $600M project finance book.</p>
+  <p class="hero-sub">A full-stack digitalisation of loan management, investor reporting, fund administration, compliance and knowledge operations — purpose-built for a $600M project finance book.</p>
   <div class="hero-stats">
-    <div class="stat-block">
-      <div class="stat-val">$600M</div>
-      <div class="stat-label">Loan book under management</div>
-    </div>
-    <div class="stat-block">
-      <div class="stat-val">10</div>
-      <div class="stat-label">Platform components</div>
-    </div>
-    <div class="stat-block">
-      <div class="stat-val">2</div>
-      <div class="stat-label">Priority build phases</div>
-    </div>
-    <div class="stat-block">
-      <div class="stat-val">~12 mo</div>
-      <div class="stat-label">Full deployment horizon</div>
-    </div>
+    <div class="stat"><div class="stat-val">$600M</div><div class="stat-label">Loan book under management</div></div>
+    <div class="stat"><div class="stat-val">10</div><div class="stat-label">Platform components</div></div>
+    <div class="stat"><div class="stat-val">4</div><div class="stat-label">Build phases</div></div>
+    <div class="stat"><div class="stat-val">~12 mo</div><div class="stat-label">Full deployment</div></div>
   </div>
 </div>
 
 <div class="divider"></div>
 
-<div class="section">
-  <div class="section-header">
-    <div class="section-title">Platform components</div>
-    <div class="section-sub">Click any section to explore in detail</div>
-  </div>
+<!-- ══ SECTION 1: EXEC SUMMARY ══════════════════════ -->
+<div class="sec" id="summary">
+  <div class="sec-eyebrow">Executive summary</div>
+  <div class="sec-title">The problem — and the solution</div>
+  <p class="sec-desc">Labassa Capital currently operates a $600M project finance book across fragmented spreadsheets, manual reporting processes and disconnected systems. As the fund grows, this creates compounding risks: reporting errors, compliance gaps, operational bottlenecks and an inability to scale. The proposed platform eliminates these by replacing every manual process with a connected, automated and auditable digital system.</p>
 
-  <div style="margin-bottom:8px">
-    <div class="phase-title">Phase 1 — Build now (0–6 months)</div>
-  </div>
-  <div class="nav-grid" style="margin-bottom:28px">
-
-    <a class="nav-card" href="02-loan-engine.html">
-      <div class="card-icon" style="background:var(--purple-light)">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="3" rx="1.5" fill="#534AB7"/><rect x="2" y="8.5" width="12" height="3" rx="1.5" fill="#534AB7" opacity=".6"/><rect x="2" y="14" width="8" height="3" rx="1.5" fill="#534AB7" opacity=".35"/></svg>
-      </div>
-      <div class="card-num">01</div>
-      <div class="card-name">Loan calculation engine</div>
-      <div class="card-desc">Accruals, cashflow scheduling, rate resets, waterfall distributions, covenant tracking — the single source of truth for all financial calculations.</div>
-      <div class="card-footer">
-        <span class="card-tag badge-purple">Priority 1</span>
-        <span class="arrow">→</span>
-      </div>
-    </a>
-
-    <a class="nav-card" href="03-investor-reporting.html">
-      <div class="card-icon" style="background:var(--accent-light)">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="2" width="14" height="16" rx="2" stroke="#0F6E56" stroke-width="1.5" fill="none"/><line x1="6" y1="7" x2="14" y2="7" stroke="#0F6E56" stroke-width="1.2"/><line x1="6" y1="10" x2="14" y2="10" stroke="#0F6E56" stroke-width="1.2" opacity=".6"/><line x1="6" y1="13" x2="11" y2="13" stroke="#0F6E56" stroke-width="1.2" opacity=".35"/></svg>
-      </div>
-      <div class="card-num">02</div>
-      <div class="card-name">Investor reporting engine</div>
-      <div class="card-desc">Automated NAV, financial statements, distribution notices and investor statements — generated from the data warehouse, zero manual assembly.</div>
-      <div class="card-footer">
-        <span class="card-tag badge-p2">Priority 2</span>
-        <span class="arrow">→</span>
-      </div>
-    </a>
-
-    <a class="nav-card" href="04-treasury.html">
-      <div class="card-icon" style="background:var(--blue-light)">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><polyline points="3,14 7,9 11,11 17,5" stroke="#185FA5" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/><rect x="3" y="15" width="14" height="1.5" rx=".75" fill="#185FA5" opacity=".3"/></svg>
-      </div>
-      <div class="card-num">03</div>
-      <div class="card-name">Treasury dashboard</div>
-      <div class="card-desc">Live portfolio overview, maturity ladder, concentration limits, covenant watchlist, warehouse utilisation and rate/hedge exposure — all in one Power BI view.</div>
-      <div class="card-footer">
-        <span class="card-tag badge-p2">Priority 2</span>
-        <span class="arrow">→</span>
-      </div>
-    </a>
-
-  </div>
-
-  <div style="margin-bottom:8px">
-    <div class="phase-title">Phase 2 — Build next (6–12 months)</div>
-  </div>
-  <div class="nav-grid" style="margin-bottom:28px">
-
-    <a class="nav-card" href="05-platform.html">
-      <div class="card-icon" style="background:var(--coral-light)">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="7" height="5" rx="1.5" fill="#993C1D" opacity=".8"/><rect x="11" y="5" width="7" height="5" rx="1.5" fill="#993C1D" opacity=".5"/><rect x="2" y="12" width="7" height="5" rx="1.5" fill="#993C1D" opacity=".35"/><rect x="11" y="12" width="7" height="5" rx="1.5" fill="#993C1D" opacity=".2"/></svg>
-      </div>
-      <div class="card-num">04</div>
-      <div class="card-name">Fund administration</div>
-      <div class="card-desc">Unit registry, capital account management, fee calculation and tax reporting (AMMA statements) — replacing manual spreadsheet processes.</div>
-      <div class="card-footer">
-        <span class="card-tag" style="background:var(--coral-light);color:var(--coral)">Phase 2</span>
-        <span class="arrow">→</span>
-      </div>
-    </a>
-
-    <a class="nav-card" href="05-platform.html">
-      <div class="card-icon" style="background:var(--amber-light)">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3L17 7v6l-7 4L3 13V7L10 3z" stroke="#854F0B" stroke-width="1.5" fill="none"/><circle cx="10" cy="10" r="2" fill="#854F0B" opacity=".6"/></svg>
-      </div>
-      <div class="card-num">05</div>
-      <div class="card-name">ASIC compliance</div>
-      <div class="card-desc">Automated RG45 and RG133 disclosures, AML/CTF reporting, AUSTRAC obligations and immutable audit trail — all data-driven from the warehouse.</div>
-      <div class="card-footer">
-        <span class="card-tag" style="background:var(--coral-light);color:var(--coral)">Phase 2</span>
-        <span class="arrow">→</span>
-      </div>
-    </a>
-
-    <a class="nav-card" href="05-platform.html">
-      <div class="card-icon" style="background:#FBEAF0">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="8" r="4" stroke="#993556" stroke-width="1.5" fill="none"/><path d="M4 17c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="#993556" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
-      </div>
-      <div class="card-num">06</div>
-      <div class="card-name">KYC &amp; digital onboarding</div>
-      <div class="card-desc">Onfido/Frankie One digital ID verification, CDD workflow, e-signature onboarding and ongoing AML monitoring — replacing manual paper processes.</div>
-      <div class="card-footer">
-        <span class="card-tag" style="background:var(--coral-light);color:var(--coral)">Phase 2</span>
-        <span class="arrow">→</span>
-      </div>
-    </a>
-
-    <a class="nav-card" href="05-platform.html">
-      <div class="card-icon" style="background:var(--accent-light)">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#0F6E56" stroke-width="1.5" fill="none"/><circle cx="10" cy="10" r="2" fill="#0F6E56"/><line x1="10" y1="3" x2="10" y2="8" stroke="#0F6E56" stroke-width="1.2"/></svg>
-      </div>
-      <div class="card-num">07</div>
-      <div class="card-name">Investor portal</div>
-      <div class="card-desc">Microsoft Power Pages — MFA-secured self-service portal for investors to view holdings, download statements and access fund documents.</div>
-      <div class="card-footer">
-        <span class="card-tag" style="background:var(--coral-light);color:var(--coral)">Phase 2</span>
-        <span class="arrow">→</span>
-      </div>
-    </a>
-
-    <a class="nav-card" href="05-platform.html">
-      <div class="card-icon" style="background:#F1EFE8">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="6" rx="1.5" fill="#5F5E5A" opacity=".7"/><rect x="11" y="3" width="6" height="6" rx="1.5" fill="#5F5E5A" opacity=".45"/><rect x="3" y="11" width="6" height="6" rx="1.5" fill="#5F5E5A" opacity=".35"/><rect x="11" y="11" width="6" height="6" rx="1.5" fill="#5F5E5A" opacity=".2"/></svg>
-      </div>
-      <div class="card-num">08</div>
-      <div class="card-name">SharePoint intranet</div>
-      <div class="card-desc">Microsoft SharePoint Online — internal team sites, document management, news and integration with Teams and Outlook across all departments.</div>
-      <div class="card-footer">
-        <span class="card-tag" style="background:var(--coral-light);color:var(--coral)">Phase 2</span>
-        <span class="arrow">→</span>
-      </div>
-    </a>
-
-    <a class="nav-card" href="05-platform.html">
-      <div class="card-icon" style="background:#F1EFE8">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 4h12v12H4z" stroke="#5F5E5A" stroke-width="1.2" fill="none" rx="1"/><line x1="4" y1="8" x2="16" y2="8" stroke="#5F5E5A" stroke-width="1"/><line x1="8" y1="8" x2="8" y2="16" stroke="#5F5E5A" stroke-width="1"/></svg>
-      </div>
-      <div class="card-num">09</div>
-      <div class="card-name">Confluence / SOP library</div>
-      <div class="card-desc">Atlassian Confluence for all operational procedures, runbooks and checklists — version-controlled, searchable and linked to Jira task management.</div>
-      <div class="card-footer">
-        <span class="card-tag" style="background:var(--coral-light);color:var(--coral)">Phase 2</span>
-        <span class="arrow">→</span>
-      </div>
-    </a>
-
-  </div>
-
-  <!-- Data lineage -->
-  <div class="nav-grid" style="grid-template-columns:minmax(0,1fr);margin-bottom:0">
-    <a class="nav-card" href="06-data-lineage.html">
-      <div class="card-icon" style="background:var(--purple-light)">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="4" cy="4" r="2" fill="#534AB7"/><circle cx="16" cy="4" r="2" fill="#534AB7"/><circle cx="10" cy="10" r="2" fill="#534AB7" opacity=".7"/><circle cx="4" cy="16" r="2" fill="#534AB7" opacity=".4"/><circle cx="16" cy="16" r="2" fill="#534AB7" opacity=".4"/><line x1="4" y1="6" x2="10" y2="8" stroke="#534AB7" stroke-width="1" opacity=".5"/><line x1="16" y1="6" x2="10" y2="8" stroke="#534AB7" stroke-width="1" opacity=".5"/><line x1="10" y1="12" x2="4" y2="14" stroke="#534AB7" stroke-width="1" opacity=".4"/><line x1="10" y1="12" x2="16" y2="14" stroke="#534AB7" stroke-width="1" opacity=".4"/></svg>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <div>
-          <div class="card-num">Reference</div>
-          <div class="card-name">Data lineage &amp; schema explorer</div>
-          <div class="card-desc">Full data lineage from source loan system through calculation engine to every investor reporting output. Click any table to see its full column schema and downstream uses.</div>
+  <div class="summary-grid" style="margin-top:32px">
+    <div>
+      <p style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">Current state — the pain points</p>
+      <div class="pain-points">
+        <div class="pain-row">
+          <div class="pain-icon" style="background:var(--coral-light);color:var(--coral)">1</div>
+          <div class="pain-text"><strong>Investor reporting is manual and error-prone</strong>Monthly statements, NAV calculations and distribution notices are assembled by hand from Excel workbooks. Each reporting cycle takes days and carries significant operational risk.</div>
+        </div>
+        <div class="pain-row">
+          <div class="pain-icon" style="background:var(--coral-light);color:var(--coral)">2</div>
+          <div class="pain-text"><strong>Loan calculations live in disconnected spreadsheets</strong>Accruals, waterfall distributions and covenant tracking are maintained in separate files with no single source of truth. Reconciliation is manual and time-consuming.</div>
+        </div>
+        <div class="pain-row">
+          <div class="pain-icon" style="background:var(--coral-light);color:var(--coral)">3</div>
+          <div class="pain-text"><strong>KYC and onboarding is entirely paper-based</strong>Investor onboarding relies on physical documents, manual ID checks and email chains. There is no digital audit trail for AML/CTF obligations.</div>
+        </div>
+        <div class="pain-row">
+          <div class="pain-icon" style="background:var(--coral-light);color:var(--coral)">4</div>
+          <div class="pain-text"><strong>ASIC compliance is reactive, not automated</strong>RG45 and RG133 disclosures require significant manual data gathering each quarter. There is no immutable audit trail to support regulatory examination.</div>
+        </div>
+        <div class="pain-row">
+          <div class="pain-icon" style="background:var(--coral-light);color:var(--coral)">5</div>
+          <div class="pain-text"><strong>No scalable knowledge or SOP infrastructure</strong>Operational procedures exist in individuals' heads or informal documents. There is no version-controlled SOP library, intranet or team knowledge base.</div>
         </div>
       </div>
-      <div class="card-footer">
-        <span class="card-tag badge-purple">Technical reference</span>
-        <span class="arrow">→</span>
+    </div>
+    <div>
+      <p style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">Future state — the outcomes</p>
+      <div class="summary-grid" style="margin-top:0;gap:10px">
+        <div class="summary-card accent">
+          <div class="summary-card-title" style="color:var(--teal)">Zero manual reporting</div>
+          <div class="summary-card-desc">Investor statements, NAV calculations and distribution notices generated automatically from a locked data warehouse snapshot. Period close takes hours, not days.</div>
+        </div>
+        <div class="summary-card accent">
+          <div class="summary-card-title" style="color:var(--teal)">Single source of truth</div>
+          <div class="summary-card-desc">Every loan balance, accrual and distribution calculation traces back to one auditable data warehouse table. No more reconciling spreadsheets.</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-title">Digital investor experience</div>
+          <div class="summary-card-desc">MFA-secured portal where investors self-serve statements, holdings and fund documents — with automated email delivery on each reporting event.</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-title">ASIC-ready by design</div>
+          <div class="summary-card-desc">RG45 and RG133 data points calculated automatically from the warehouse. Immutable audit log covering every calculation and approval decision.</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-title">Scalable to $1B+</div>
+          <div class="summary-card-desc">Cloud-native infrastructure on Snowflake + Azure scales linearly with book size. Adding a new loan or investor requires no additional manual process.</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-title">Platform built to last</div>
+          <div class="summary-card-desc">All code version-controlled in Git, all processes documented in Confluence. New team members can onboard in days, not months.</div>
+        </div>
       </div>
-    </a>
+    </div>
   </div>
 </div>
 
 <div class="divider"></div>
 
-<div class="section">
-  <div class="section-header">
-    <div class="section-title">Implementation timeline</div>
-  </div>
-  <div class="timeline-grid">
-    <div class="tl-col" style="background:#EEEDFE08">
-      <div class="tl-phase" style="color:var(--purple)">Phase 1A</div>
-      <div class="tl-period">Months 0–3</div>
-      <div class="tl-item tl-p1">Snowflake / Azure Synapse — data warehouse setup</div>
-      <div class="tl-item tl-p1">dbt staging models for loan system ingestion</div>
-      <div class="tl-item tl-p1">Python accrual engine (daily interest calc)</div>
-      <div class="tl-item tl-p1">Validate vs existing Excel models</div>
+<!-- ══ SECTION 2: ARCHITECTURE DIAGRAM ══════════════ -->
+<div class="sec" id="architecture">
+  <div class="sec-eyebrow">Section 1 · Digital transformation framework</div>
+  <div class="sec-title">Labassa — Integrated digital platform</div>
+  <p class="sec-desc" style="margin-bottom:28px">A single connected ecosystem where every component shares the same data warehouse as its source of truth. Click any component to see its technology stack and integration points.</p>
+
+  <div class="arch-diagram">
+    <div class="arch-legend">
+      <div class="leg"><div class="leg-box" style="background:var(--purple-light);border-color:var(--purple-border)"></div>Priority 1 — Loan engine</div>
+      <div class="leg"><div class="leg-box" style="background:var(--teal-light);border-color:var(--teal-border)"></div>Priority 2 — Investor reporting</div>
+      <div class="leg"><div class="leg-box" style="background:var(--coral-light);border-color:var(--coral-border)"></div>Phase 2 build-out</div>
+      <div class="leg"><div class="leg-box" style="background:var(--gray-light);border-color:var(--gray-border)"></div>Shared infrastructure</div>
     </div>
-    <div class="tl-col" style="background:#E1F5EE08">
-      <div class="tl-phase" style="color:var(--accent)">Phase 1B</div>
-      <div class="tl-period">Months 3–6</div>
-      <div class="tl-item tl-p2">Waterfall engine + distribution calculations</div>
+
+    <!-- Row 1: Data ingestion -->
+    <div class="d-row d-full">
+      <div class="dbox dbox-gray" onclick="archShow('src',this)">
+        <div class="dbox-title">Data ingestion layer</div>
+        <div class="dbox-sub">Loan systems · Bank feeds · Fund admin · Manual uploads · ASIC registry</div>
+      </div>
+    </div>
+
+    <!-- Arrow down -->
+    <div style="display:flex;justify-content:center;padding:10px 0">
+      <div class="arrow-down"><div class="line"></div><div class="tip"></div></div>
+    </div>
+
+    <!-- Row 2: Loan engine + Investor reporting -->
+    <div class="d-row d-2col" style="align-items:stretch">
+      <div class="dbox dbox-purple" onclick="archShow('loan',this)" style="flex:1">
+        <div class="dbox-title">Loan aggregation engine</div>
+        <div class="dbox-sub">Calculation · Waterfall · Positions</div>
+      </div>
+      <div class="arrow-col" style="padding:0 8px">
+        <div class="arrow-right"><div class="line"></div><div class="tip"></div></div>
+      </div>
+      <div class="dbox dbox-teal" onclick="archShow('inv',this)" style="flex:1">
+        <div class="dbox-title">Investor reporting engine</div>
+        <div class="dbox-sub">Statements · NAV · Distribution</div>
+      </div>
+    </div>
+
+    <!-- Arrows down from each column -->
+    <div style="display:grid;grid-template-columns:1fr 40px 1fr;padding:10px 0">
+      <div style="display:flex;justify-content:center"><div class="arrow-down"><div class="line"></div><div class="tip"></div></div></div>
+      <div></div>
+      <div style="display:flex;justify-content:center"><div class="arrow-down"><div class="line"></div><div class="tip"></div></div></div>
+    </div>
+
+    <!-- Row 3: Fund admin + Treasury + Knowledge -->
+    <div class="d-row d-3col-eq">
+      <div class="dbox dbox-coral" onclick="archShow('fund',this)">
+        <div class="dbox-title">Fund administration</div>
+        <div class="dbox-sub">KYC · Onboarding · Unitisation</div>
+      </div>
+      <div class="dbox dbox-blue" onclick="archShow('treas',this)">
+        <div class="dbox-title">Treasury &amp; compliance</div>
+        <div class="dbox-sub">ASIC · Liquidity · Limits</div>
+      </div>
+      <div class="dbox dbox-amber" onclick="archShow('know',this)">
+        <div class="dbox-title">Knowledge &amp; ops</div>
+        <div class="dbox-sub">SharePoint · Confluence · SOP</div>
+      </div>
+    </div>
+
+    <!-- Arrows down -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:10px 0;gap:12px">
+      <div style="display:flex;justify-content:center"><div class="arrow-down"><div class="line"></div><div class="tip"></div></div></div>
+      <div style="display:flex;justify-content:center"><div class="arrow-down"><div class="line"></div><div class="tip"></div></div></div>
+      <div style="display:flex;justify-content:center"><div class="arrow-down"><div class="line"></div><div class="tip"></div></div></div>
+    </div>
+
+    <!-- Row 4: Presentation -->
+    <div class="d-row d-full">
+      <div class="dbox dbox-gray" onclick="archShow('pres',this)">
+        <div class="dbox-title">Presentation &amp; delivery layer</div>
+        <div class="dbox-sub">Investor portal · Internal dashboards · Automated PDF/Excel reports · API feeds</div>
+      </div>
+    </div>
+
+    <!-- Arrows down -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:10px 0;gap:12px">
+      <div style="display:flex;justify-content:center"><div class="arrow-down"><div class="line"></div><div class="tip"></div></div></div>
+      <div style="display:flex;justify-content:center"><div class="arrow-down"><div class="line"></div><div class="tip"></div></div></div>
+      <div style="display:flex;justify-content:center"><div class="arrow-down"><div class="line"></div><div class="tip"></div></div></div>
+    </div>
+
+    <!-- Row 5: Infra -->
+    <div class="d-row d-3col-eq">
+      <div class="dbox dbox-gray" onclick="archShow('sec',this)">
+        <div class="dbox-title">Security &amp; IAM</div>
+        <div class="dbox-sub">Azure AD · MFA · RBAC</div>
+      </div>
+      <div class="dbox dbox-gray" onclick="archShow('cloud',this)">
+        <div class="dbox-title">Cloud infrastructure</div>
+        <div class="dbox-sub">Azure / AWS · DevOps CI/CD</div>
+      </div>
+      <div class="dbox dbox-gray" onclick="archShow('audit',this)">
+        <div class="dbox-title">Audit &amp; logging</div>
+        <div class="dbox-sub">Event log · Retention · ASIC trail</div>
+      </div>
+    </div>
+
+    <div id="arch-detail" class="arch-detail"></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══ SECTION 3: COMPONENT 1 ═══════════════════════ -->
+<div class="sec" id="component1">
+  <div class="sec-eyebrow">Section 2 · Component 01 · Priority 1</div>
+  <div class="sec-title">Loan calculation &amp; aggregation engine</div>
+  <p class="sec-desc">The single source of truth for all financial calculations. Every number in every investor statement, ASIC disclosure and treasury report originates here. Built in Python on top of a modern data warehouse — fully auditable, version-controlled and testable. Click any module to see the detail.</p>
+
+  <!-- Loan types -->
+  <div class="layer-wrap" style="margin-top:28px">
+    <div class="layer-head">Loan type layer — separate calculation logic per structure</div>
+    <div class="layer-body">
+      <div class="card-grid-4">
+        <div class="mcard mc-coral" onclick="loanShow('senior',this)">
+          <div class="mcard-num">Type 01</div>
+          <div class="mcard-name">Senior debt</div>
+          <div class="mcard-desc">Fixed / floating P+I · Actual/365 · BBSY + margin</div>
+        </div>
+        <div class="mcard mc-coral" onclick="loanShow('mezz',this)">
+          <div class="mcard-num">Type 02</div>
+          <div class="mcard-name">Mezzanine</div>
+          <div class="mcard-desc">PIK interest capitalised · OID · Higher margin</div>
+        </div>
+        <div class="mcard mc-coral" onclick="loanShow('construction',this)">
+          <div class="mcard-num">Type 03</div>
+          <div class="mcard-name">Construction loan</div>
+          <div class="mcard-desc">Progressive drawdowns · Interest reserve fund</div>
+        </div>
+        <div class="mcard mc-coral" onclick="loanShow('prefequity',this)">
+          <div class="mcard-num">Type 04</div>
+          <div class="mcard-name">Preferred equity</div>
+          <div class="mcard-desc">Hurdle return · Carry · Capital return priority</div>
+        </div>
+      </div>
+      <div id="ld-type" class="comp-detail"></div>
+    </div>
+  </div>
+
+  <div class="layer-arrow">normalise all loan types into common cashflow model</div>
+
+  <!-- Calc engine -->
+  <div class="layer-wrap">
+    <div class="layer-head">Calculation engine — Python + dbt running on Snowflake</div>
+    <div class="layer-body">
+      <div class="engine-box">
+        <div class="engine-label">Core calculation modules</div>
+        <div class="card-grid-4">
+          <div class="mcard mc-purple" onclick="loanShow('cashflow',this)">
+            <div class="mcard-num">Module 01</div>
+            <div class="mcard-name">Cashflow model</div>
+            <div class="mcard-desc">Scheduled principal · interest · fees · penalties per day</div>
+          </div>
+          <div class="mcard mc-purple" onclick="loanShow('accrual',this)">
+            <div class="mcard-num">Module 02</div>
+            <div class="mcard-name">Accrual engine</div>
+            <div class="mcard-desc">Daily interest · Actual/365 · BBSY resets · PIK</div>
+          </div>
+          <div class="mcard mc-purple" onclick="loanShow('rateengine',this)">
+            <div class="mcard-num">Module 03</div>
+            <div class="mcard-name">Rate engine</div>
+            <div class="mcard-desc">BBSY/AONIA + margin · rate reset · cap/floor</div>
+          </div>
+          <div class="mcard mc-purple" onclick="loanShow('covenants',this)">
+            <div class="mcard-num">Module 04</div>
+            <div class="mcard-name">Covenant tracker</div>
+            <div class="mcard-desc">LVR · ICR · DSCR · breach alerts · waiver log</div>
+          </div>
+        </div>
+      </div>
+      <div id="ld-calc" class="comp-detail"></div>
+    </div>
+  </div>
+
+  <div class="layer-arrow">dbt mart layer · period aggregations</div>
+
+  <!-- Aggregation -->
+  <div class="layer-wrap">
+    <div class="layer-head">Aggregation layer — fund and portfolio-level analytics</div>
+    <div class="layer-body">
+      <div class="card-grid-3">
+        <div class="mcard mc-teal" onclick="loanShow('positions',this)">
+          <div class="mcard-num">Aggregate 01</div>
+          <div class="mcard-name">Portfolio positions</div>
+          <div class="mcard-desc">Gross/net exposure · WA rate · WA maturity · sector splits</div>
+        </div>
+        <div class="mcard mc-teal" onclick="loanShow('waterfall',this)">
+          <div class="mcard-num">Aggregate 02</div>
+          <div class="mcard-name">Waterfall engine</div>
+          <div class="mcard-desc">Senior → mezz → pref equity → equity · per-investor allocation</div>
+        </div>
+        <div class="mcard mc-teal" onclick="loanShow('performance',this)">
+          <div class="mcard-num">Aggregate 03</div>
+          <div class="mcard-name">Performance metrics</div>
+          <div class="mcard-desc">IRR (XIRR) · MOIC · DPI · TWR · MWR · fund NAV</div>
+        </div>
+      </div>
+      <div id="ld-agg" class="comp-detail"></div>
+    </div>
+  </div>
+
+  <div class="layer-arrow">period lock · immutable audit snapshot · feeds all downstream systems</div>
+
+  <!-- DW bar -->
+  <div class="dw-bar">loan_positions_daily &nbsp;·&nbsp; interest_accrual_daily &nbsp;·&nbsp; cashflow_schedule &nbsp;·&nbsp; covenant_status &nbsp;·&nbsp; portfolio_summary &nbsp;·&nbsp; waterfall_distributions &nbsp;·&nbsp; fund_nav</div>
+
+  <!-- Consumers -->
+  <div style="margin-top:10px">
+    <div class="layer-head" style="padding:10px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius) var(--radius) 0 0;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)">Downstream consumers</div>
+    <div style="border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:14px">
+      <div class="card-grid-3">
+        <div class="mcard mc-blue"><div class="mcard-name">Investor reporting</div><div class="mcard-desc">Statements · NAV · IRR · distribution notices</div></div>
+        <div class="mcard mc-blue"><div class="mcard-name">Treasury dashboard</div><div class="mcard-desc">Liquidity · limits · covenant watchlist · hedging</div></div>
+        <div class="mcard mc-blue"><div class="mcard-name">ASIC compliance</div><div class="mcard-desc">RG45 benchmarks · RG133 quarterly · audit trail</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Build vs buy -->
+  <div class="bvb">
+    <div class="bvb-title">Build vs buy — the key decision for Labassa at $600M</div>
+    <div class="bvb-cols">
+      <div>
+        <div class="bvb-col-h">Buy/Build — Depending on the number of loans</div>
+        <div class="bvb-col-t">These handle the operational side — drawdowns, repayments, facility amendments. They become the source of truth that feeds the warehouse via API or SFTP. Enterprise platforms like Loan IQ or nCino are bank-grade overkill at this scale.</div>
+      </div>
+      <div>
+        <div class="bvb-col-h">Build — calculation engine</div>
+        <div class="bvb-col-t">Python (pandas / numpy / scipy) runs outside Snowflake on an Airflow worker or Azure Function. It does the heavy calculation work, reads raw data from Snowflake and writes results back as clean tables. dbt then handles SQL-layer transformations inside Snowflake. All logic is version-controlled in Git with pytest unit tests — fully auditable.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tech stack -->
+  <div class="stack-row">
+    <div class="stack-card">
+      <div class="stack-label">Core calculation (external)</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--purple)"></div>Python 3.11 — calculation logic</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--purple)"></div>pandas + numpy — data manipulation</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--purple)"></div>scipy — IRR / XIRR / NPV functions</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--purple)"></div>pytest — automated test suite</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-label">Data pipeline (Snowflake)</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--teal)"></div>Snowflake — financial data warehouse</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--teal)"></div>dbt Cloud — SQL transformations</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--teal)"></div>Apache Airflow — orchestration</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--teal)"></div>Great Expectations — data quality</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-label">Loan system of record</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--coral)"></div>Loanworks (AU-native) — recommended</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--coral)"></div>SAMS — structured asset management</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--coral)"></div>nCino — if bank-grade required</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--coral)"></div>Source feeds via REST API / SFTP</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══ SECTION 4: COMPONENT 2 ═══════════════════════ -->
+<div class="sec" id="component2">
+  <div class="sec-eyebrow">Section 3 · Component 02 · Priority 2</div>
+  <div class="sec-title">Investor reporting engine</div>
+  <p class="sec-desc">Automated NAV, financial statements and investor deliverables — generated directly from the data warehouse with zero manual assembly. The reporting engine never calculates independently: it reads from locked, approved snapshots, populates branded templates and delivers through multiple channels simultaneously. Click any stage to see the detail.</p>
+
+  <!-- Inputs -->
+  <div class="layer-wrap" style="margin-top:28px">
+    <div class="layer-head">Inputs — from loan engine + fund register (all via data warehouse)</div>
+    <div class="layer-body">
+      <div class="card-grid-4">
+        <div class="mcard mc-purple" onclick="invShow('in_pos',this)">
+          <div class="mcard-num">Input 01</div>
+          <div class="mcard-name">Loan positions</div>
+          <div class="mcard-desc">Daily balances · accruals · cashflow actuals</div>
+        </div>
+        <div class="mcard mc-purple" onclick="invShow('in_wf',this)">
+          <div class="mcard-num">Input 02</div>
+          <div class="mcard-name">Waterfall output</div>
+          <div class="mcard-desc">Per-investor distribution entitlements</div>
+        </div>
+        <div class="mcard mc-purple" onclick="invShow('in_reg',this)">
+          <div class="mcard-num">Input 03</div>
+          <div class="mcard-name">Fund register</div>
+          <div class="mcard-desc">Investor units, capital contributions, redemptions</div>
+        </div>
+        <div class="mcard mc-purple" onclick="invShow('in_val',this)">
+          <div class="mcard-num">Input 04</div>
+          <div class="mcard-name">Valuations</div>
+          <div class="mcard-desc">Asset fair values — drives NAV and LVR</div>
+        </div>
+      </div>
+      <div id="id-inputs" class="comp-detail"></div>
+    </div>
+  </div>
+
+  <div class="layer-arrow">dbt mart layer · period-based financial computations</div>
+
+  <!-- Calculations -->
+  <div class="layer-wrap">
+    <div class="layer-head">Reporting calculations — period-based financial computations</div>
+    <div class="layer-body">
+      <div class="card-grid-4">
+        <div class="mcard mc-teal" onclick="invShow('nav',this)">
+          <div class="mcard-num">Calc 01</div>
+          <div class="mcard-name">NAV calculation</div>
+          <div class="mcard-desc">Gross asset value less liabilities ÷ units on issue</div>
+        </div>
+        <div class="mcard mc-teal" onclick="invShow('returns',this)">
+          <div class="mcard-num">Calc 02</div>
+          <div class="mcard-name">Return metrics</div>
+          <div class="mcard-desc">IRR (XIRR) · MOIC · DPI · TWR · MWR</div>
+        </div>
+        <div class="mcard mc-teal" onclick="invShow('stmts',this)">
+          <div class="mcard-num">Calc 03</div>
+          <div class="mcard-name">Financial statements</div>
+          <div class="mcard-desc">P&amp;L · balance sheet · cash flow — fund level</div>
+        </div>
+        <div class="mcard mc-teal" onclick="invShow('dist',this)">
+          <div class="mcard-num">Calc 04</div>
+          <div class="mcard-name">Distribution calc</div>
+          <div class="mcard-desc">CPU per unit · tax components · reinvestment</div>
+        </div>
+      </div>
+      <div id="id-calcs" class="comp-detail"></div>
+    </div>
+  </div>
+
+  <div class="layer-arrow">period lock · 4-eyes approval · immutable snapshot</div>
+
+  <!-- Period close -->
+  <div class="layer-wrap">
+    <div class="layer-head">Period close workflow — lock, review and approve before any statement is generated</div>
+    <div class="layer-body">
+      <div class="steps-row">
+        <div class="step"><div class="step-num">1</div><div class="step-title">Period lock</div><div class="step-desc">Month/quarter end reached. Calc engine writes final snapshot to Snowflake with is_period_end = true. No further source edits allowed.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-title">Auto reconciliation</div><div class="step-desc">dbt tests run — bank rec, loan balance, assets = liabilities + equity. Any failure blocks report generation automatically.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-title">4-eyes approval</div><div class="step-desc">Fund manager reviews NAV in approval portal. Signs off — approved_by and approved_at written. is_locked = true. Audit trail complete.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-title">Report generation</div><div class="step-desc">Airflow triggers document pipeline. Templates populated from approved snapshot. PDFs stored in Azure Blob. Email delivery queued.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layer-arrow">approved data → branded investor deliverables</div>
+
+  <!-- Statement preview -->
+  <div class="layer-wrap">
+    <div class="layer-head">Investor statement — every line maps to a specific Snowflake column</div>
+    <div class="layer-body">
+      <div class="card-grid-2">
+        <div class="stmt">
+          <div class="stmt-hd">
+            <div class="stmt-hd-name">Labassa Mortgage Fund No.1</div>
+            <div class="stmt-hd-sub">Investor Statement · Q1 2026 · J. Smith</div>
+          </div>
+          <div class="stmt-bd">
+            <div class="stmt-sec">Account summary</div>
+            <div class="stmt-row"><span class="stmt-lbl">Units held</span><span class="stmt-val">142,500.00</span></div>
+            <div class="stmt-row"><span class="stmt-lbl">Opening unit value</span><span class="stmt-val">$1.0824</span></div>
+            <div class="stmt-row"><span class="stmt-lbl">Closing unit value</span><span class="stmt-val">$1.0891</span></div>
+            <div class="stmt-sec">Period activity</div>
+            <div class="stmt-row"><span class="stmt-lbl">Opening balance</span><span class="stmt-val">$154,242.00</span></div>
+            <div class="stmt-row"><span class="stmt-lbl">Income for period</span><span class="stmt-val">+$3,218.40</span></div>
+            <div class="stmt-row"><span class="stmt-lbl">Management fee</span><span class="stmt-val">−$384.76</span></div>
+            <div class="stmt-row"><span class="stmt-lbl">Distribution paid</span><span class="stmt-val">−$2,747.25</span></div>
+            <div class="stmt-row"><span class="stmt-lbl">Closing balance</span><span class="stmt-val">$154,328.39</span></div>
+            <div class="stmt-sec">Returns</div>
+            <div class="stmt-row"><span class="stmt-lbl">Period return</span><span class="stmt-val" style="color:var(--teal)">+0.62%</span></div>
+            <div class="stmt-row"><span class="stmt-lbl">IRR since inception</span><span class="stmt-val" style="color:var(--teal)">8.41% p.a.</span></div>
+          </div>
+        </div>
+        <div>
+          <p style="font-size:11px;color:var(--text-muted);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Data source for each line</p>
+          <div class="src-map">
+            <div class="src-row"><span class="src-lbl">Units held</span><span class="src-tbl">dim_investor.units_held</span></div>
+            <div class="src-row"><span class="src-lbl">Opening unit value</span><span class="src-tbl">fund_nav.nav_per_unit (prior)</span></div>
+            <div class="src-row"><span class="src-lbl">Closing unit value</span><span class="src-tbl">fund_nav.nav_per_unit (current)</span></div>
+            <div class="src-row"><span class="src-lbl">Opening balance</span><span class="src-tbl">prior nav_per_unit × units [derived]</span></div>
+            <div class="src-row"><span class="src-lbl">Income for period</span><span class="src-tbl">waterfall_distributions.income_entitlement</span></div>
+            <div class="src-row"><span class="src-lbl">Management fee</span><span class="src-tbl">waterfall_distributions.management_fee</span></div>
+            <div class="src-row"><span class="src-lbl">Distribution paid</span><span class="src-tbl">waterfall_distributions.net_distribution</span></div>
+            <div class="src-row"><span class="src-lbl">Closing balance</span><span class="src-tbl">nav_per_unit × units_held [derived]</span></div>
+            <div class="src-row"><span class="src-lbl">Period return</span><span class="src-tbl">(close − open) / open [derived]</span></div>
+            <div class="src-row"><span class="src-lbl">IRR since inception</span><span class="src-tbl">scipy.xirr(cashflow_schedule)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layer-arrow">multi-channel delivery</div>
+
+  <!-- Delivery -->
+  <div class="layer-wrap">
+    <div class="layer-head">Delivery channels</div>
+    <div class="layer-body">
+      <div class="card-grid-3">
+        <div class="mcard mc-blue"><div class="mcard-name">Investor portal</div><div class="mcard-desc">Power Pages · Azure AD B2C MFA · self-serve · each investor sees only their data</div></div>
+        <div class="mcard mc-blue"><div class="mcard-name">Automated email</div><div class="mcard-desc">Power Automate triggered on period close · branded PDF attached · delivery logged</div></div>
+        <div class="mcard mc-blue"><div class="mcard-name">Internal dashboards</div><div class="mcard-desc">Power BI DirectQuery on Snowflake · live fund manager views · board pack PDF</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tech stack -->
+  <div class="stack-row">
+    <div class="stack-card">
+      <div class="stack-label">Calculation &amp; data</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--teal)"></div>Snowflake — data warehouse</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--teal)"></div>dbt Cloud — transformations</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--teal)"></div>Python scipy — XIRR / IRR</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--teal)"></div>Airflow — orchestration</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-label">Report generation</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--purple)"></div>Templafy — branded PDF templates</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--purple)"></div>Python + WeasyPrint (PDF)</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--purple)"></div>Azure Blob — PDF storage</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--purple)"></div>DocuSign — e-signature</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-label">Delivery &amp; portal</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--blue)"></div>Power Pages — investor portal</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--blue)"></div>Azure AD B2C — MFA login</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--blue)"></div>Power Automate — email trigger</div>
+      <div class="stack-item"><div class="sdot" style="background:var(--blue)"></div>Power BI — internal dashboards</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══ SECTION 5: ALL COMPONENTS ════════════════════ -->
+<div class="sec" id="components">
+  <div class="sec-eyebrow">Section 4 · Full platform</div>
+  <div class="sec-title">All platform components</div>
+  <p class="sec-desc" style="margin-bottom:28px">Each component has a dedicated detail page with full technology stack, module breakdown and integration mapping.</p>
+
+  <div style="margin-bottom:10px"><div class="phase-label">Phase 1 — Build now (0–6 months)</div></div>
+  <div class="nav-grid" style="margin-bottom:28px">
+    <a class="nav-card" href="02-loan-engine.html">
+      <div class="nc-icon" style="background:var(--purple-light)"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="3" rx="1.5" fill="#534AB7"/><rect x="2" y="8.5" width="12" height="3" rx="1.5" fill="#534AB7" opacity=".6"/><rect x="2" y="14" width="8" height="3" rx="1.5" fill="#534AB7" opacity=".35"/></svg></div>
+      <div class="nc-num">01</div><div class="nc-name">Loan calculation engine</div>
+      <div class="nc-desc">Accruals, cashflow scheduling, rate resets, waterfall distributions, covenant tracking.</div>
+      <div class="nc-footer"><span class="nc-tag badge-p1">Priority 1</span><span class="arr">→</span></div>
+    </a>
+    <a class="nav-card" href="03-investor-reporting.html">
+      <div class="nc-icon" style="background:var(--teal-light)"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="2" width="14" height="16" rx="2" stroke="#0F6E56" stroke-width="1.5" fill="none"/><line x1="6" y1="7" x2="14" y2="7" stroke="#0F6E56" stroke-width="1.2"/><line x1="6" y1="10" x2="14" y2="10" stroke="#0F6E56" stroke-width="1.2" opacity=".6"/><line x1="6" y1="13" x2="11" y2="13" stroke="#0F6E56" stroke-width="1.2" opacity=".35"/></svg></div>
+      <div class="nc-num">02</div><div class="nc-name">Investor reporting engine</div>
+      <div class="nc-desc">Automated NAV, financial statements, distribution notices and investor statements.</div>
+      <div class="nc-footer"><span class="nc-tag badge-p2">Priority 2</span><span class="arr">→</span></div>
+    </a>
+    <a class="nav-card" href="04-treasury.html">
+      <div class="nc-icon" style="background:var(--blue-light)"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><polyline points="3,14 7,9 11,11 17,5" stroke="#185FA5" stroke-width="1.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/><rect x="3" y="15" width="14" height="1.5" rx=".75" fill="#185FA5" opacity=".3"/></svg></div>
+      <div class="nc-num">03</div><div class="nc-name">Treasury dashboard</div>
+      <div class="nc-desc">Live portfolio overview, maturity ladder, concentration limits, covenant watchlist.</div>
+      <div class="nc-footer"><span class="nc-tag badge-p2">Priority 2</span><span class="arr">→</span></div>
+    </a>
+  </div>
+
+  <div style="margin-bottom:10px"><div class="phase-label">Phase 2 — Build next (6–12 months)</div></div>
+  <div class="nav-grid">
+    <a class="nav-card" href="05-platform.html"><div class="nc-icon" style="background:var(--coral-light)"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="7" height="5" rx="1.5" fill="#993C1D" opacity=".8"/><rect x="11" y="5" width="7" height="5" rx="1.5" fill="#993C1D" opacity=".5"/><rect x="2" y="12" width="7" height="5" rx="1.5" fill="#993C1D" opacity=".35"/><rect x="11" y="12" width="7" height="5" rx="1.5" fill="#993C1D" opacity=".2"/></svg></div><div class="nc-num">04</div><div class="nc-name">Fund administration</div><div class="nc-desc">Unit registry, capital accounts, fee calculation, AMMA tax reporting.</div><div class="nc-footer"><span class="nc-tag badge-ph2">Phase 2</span><span class="arr">→</span></div></a>
+    <a class="nav-card" href="05-platform.html"><div class="nc-icon" style="background:var(--amber-light)"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3L17 7v6l-7 4L3 13V7L10 3z" stroke="#854F0B" stroke-width="1.5" fill="none"/><circle cx="10" cy="10" r="2" fill="#854F0B" opacity=".6"/></svg></div><div class="nc-num">05</div><div class="nc-name">ASIC compliance</div><div class="nc-desc">RG45 and RG133 disclosures, AML/CTF reporting, AUSTRAC, audit trail.</div><div class="nc-footer"><span class="nc-tag badge-ph2">Phase 2</span><span class="arr">→</span></div></a>
+    <a class="nav-card" href="05-platform.html"><div class="nc-icon" style="background:#FBEAF0"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="8" r="4" stroke="#993556" stroke-width="1.5" fill="none"/><path d="M4 17c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="#993556" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div><div class="nc-num">06</div><div class="nc-name">KYC &amp; digital onboarding</div><div class="nc-desc">Onfido/Frankie One digital ID, CDD workflow, e-signature, ongoing AML monitoring.</div><div class="nc-footer"><span class="nc-tag badge-ph2">Phase 2</span><span class="arr">→</span></div></a>
+    <a class="nav-card" href="05-platform.html"><div class="nc-icon" style="background:var(--teal-light)"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#0F6E56" stroke-width="1.5" fill="none"/><circle cx="10" cy="10" r="2" fill="#0F6E56"/><line x1="10" y1="3" x2="10" y2="8" stroke="#0F6E56" stroke-width="1.2"/></svg></div><div class="nc-num">07</div><div class="nc-name">Investor portal</div><div class="nc-desc">MFA-secured self-service portal — holdings, statements, fund documents.</div><div class="nc-footer"><span class="nc-tag badge-ph2">Phase 2</span><span class="arr">→</span></div></a>
+    <a class="nav-card" href="05-platform.html"><div class="nc-icon" style="background:#F1EFE8"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="6" rx="1.5" fill="#5F5E5A" opacity=".7"/><rect x="11" y="3" width="6" height="6" rx="1.5" fill="#5F5E5A" opacity=".45"/><rect x="3" y="11" width="6" height="6" rx="1.5" fill="#5F5E5A" opacity=".35"/><rect x="11" y="11" width="6" height="6" rx="1.5" fill="#5F5E5A" opacity=".2"/></svg></div><div class="nc-num">08</div><div class="nc-name">SharePoint intranet</div><div class="nc-desc">Internal team sites, document management, Teams and Outlook integration.</div><div class="nc-footer"><span class="nc-tag badge-ph2">Phase 2</span><span class="arr">→</span></div></a>
+    <a class="nav-card" href="05-platform.html"><div class="nc-icon" style="background:#F1EFE8"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 4h12v12H4z" stroke="#5F5E5A" stroke-width="1.2" fill="none"/><line x1="4" y1="8" x2="16" y2="8" stroke="#5F5E5A" stroke-width="1"/><line x1="8" y1="8" x2="8" y2="16" stroke="#5F5E5A" stroke-width="1"/></svg></div><div class="nc-num">09</div><div class="nc-name">Confluence / SOP library</div><div class="nc-desc">Operational procedures, runbooks, version-controlled and linked to Jira.</div><div class="nc-footer"><span class="nc-tag badge-ph2">Phase 2</span><span class="arr">→</span></div></a>
+  </div>
+  <div class="nav-grid" style="grid-template-columns:minmax(0,1fr);margin-top:14px">
+    <a class="nav-card" href="06-data-lineage.html"><div class="nc-icon" style="background:var(--purple-light)"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="4" cy="4" r="2" fill="#534AB7"/><circle cx="16" cy="4" r="2" fill="#534AB7"/><circle cx="10" cy="10" r="2" fill="#534AB7" opacity=".7"/><circle cx="4" cy="16" r="2" fill="#534AB7" opacity=".4"/><circle cx="16" cy="16" r="2" fill="#534AB7" opacity=".4"/><line x1="4" y1="6" x2="10" y2="8" stroke="#534AB7" stroke-width="1" opacity=".5"/><line x1="16" y1="6" x2="10" y2="8" stroke="#534AB7" stroke-width="1" opacity=".5"/><line x1="10" y1="12" x2="4" y2="14" stroke="#534AB7" stroke-width="1" opacity=".4"/><line x1="10" y1="12" x2="16" y2="14" stroke="#534AB7" stroke-width="1" opacity=".4"/></svg></div><div class="nc-num">Reference</div><div class="nc-name">Data lineage &amp; schema explorer</div><div class="nc-desc">Full data lineage from source loan system to every investor output. Click any table to see its column schema and downstream uses.</div><div class="nc-footer"><span class="nc-tag badge-ref">Technical reference</span><span class="arr">→</span></div></a>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══ SECTION 6: TIMELINE ══════════════════════════ -->
+<div class="sec" id="timeline">
+  <div class="sec-eyebrow">Section 5 · Implementation plan</div>
+  <div class="sec-title">Delivery timeline — 12 months</div>
+  <div class="tl-grid" style="margin-top:24px">
+    <div class="tl-col" style="background:#EEEDFE0A">
+      <div class="tl-phase tl-p1">Phase 1A · Months 0–3</div>
+      <div class="tl-period">Foundation</div>
+      <div class="tl-item tl-p1">Snowflake / Azure Synapse setup</div>
+      <div class="tl-item tl-p1">dbt staging models — loan system ingestion</div>
+      <div class="tl-item tl-p1">Python accrual engine — daily interest calc</div>
+      <div class="tl-item tl-p1">Validate vs existing Excel workbooks</div>
+    </div>
+    <div class="tl-col" style="background:#E1F5EE0A">
+      <div class="tl-phase tl-p2">Phase 1B · Months 3–6</div>
+      <div class="tl-period">Reporting live</div>
+      <div class="tl-item tl-p2">Waterfall engine + distribution calcs</div>
       <div class="tl-item tl-p2">NAV calculation + period lock workflow</div>
       <div class="tl-item tl-p2">Power BI treasury dashboard (internal)</div>
       <div class="tl-item tl-p2">Automated PDF investor statements</div>
     </div>
     <div class="tl-col">
-      <div class="tl-phase" style="color:var(--blue)">Phase 2A</div>
-      <div class="tl-period">Months 6–9</div>
-      <div class="tl-item tl-p3">Digital KYC / investor onboarding (Onfido)</div>
+      <div class="tl-phase tl-p3">Phase 2A · Months 6–9</div>
+      <div class="tl-period">Compliance &amp; portal</div>
+      <div class="tl-item tl-p3">Digital KYC / investor onboarding</div>
       <div class="tl-item tl-p3">Investor portal (Power Pages + Azure AD)</div>
       <div class="tl-item tl-p3">ASIC RG45 / RG133 automated reports</div>
       <div class="tl-item tl-p3">SharePoint intranet launch</div>
     </div>
     <div class="tl-col">
-      <div class="tl-phase" style="color:var(--text-muted)">Phase 2B</div>
-      <div class="tl-period">Months 9–12</div>
-      <div class="tl-item tl-p4">Full fund admin automation (AMMA, unit reg)</div>
+      <div class="tl-phase tl-p4">Phase 2B · Months 9–12</div>
+      <div class="tl-period">Full automation</div>
+      <div class="tl-item tl-p4">Fund admin automation (AMMA, unit reg)</div>
       <div class="tl-item tl-p4">Confluence SOP library migration</div>
       <div class="tl-item tl-p4">AML/CTF transaction monitoring</div>
       <div class="tl-item tl-p4">Full platform UAT &amp; go-live</div>
@@ -316,10 +926,261 @@ a{color:var(--accent);text-decoration:none}
   </div>
 </div>
 
-<div class="footer">
+<div class="page-footer">
   <span>Labassa Capital — Digital Platform Proposal</span>
   <span>Confidential · <span id="yr"></span></span>
 </div>
-<script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+
+<!-- ══ JAVASCRIPT ═══════════════════════════════════ -->
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+/* ── Architecture diagram data ── */
+const archData = {
+  src:{title:'Data ingestion layer',items:[
+    {n:'Loan system',v:'Loanworks / SAMS — system of record for all loan positions, drawdowns and repayments.'},
+    {n:'Bank feeds',v:'Direct bank API (ANZ, CBA, Westpac) or CSV upload — daily settlement reconciliation.'},
+    {n:'Valuation feeds',v:'External property/asset valuations via API or manual upload — drives LVR recalculation.'},
+    {n:'BBSY/AONIA market data',v:'Refinitiv/Bloomberg rate feeds — floating rate resets and hedge accounting.'},
+    {n:'Fund register',v:'Unit registry system — investor holdings, capital calls, distributions.'},
+    {n:'Manual overrides',v:'Excel upload portal with validation rules — for adjustments and corrections.'},
+  ],uses:['loan_facility','loan_drawdown','loan_repayment','rate_reset']},
+  loan:{title:'Loan aggregation engine (Priority 1)',items:[
+    {n:'Cashflow model',v:'Scheduled P+I, IO and construction drawdown schedules per loan type.'},
+    {n:'Accrual engine',v:'Daily accruals across Actual/365, 30/360 — PIK capitalisation for mezzanine.'},
+    {n:'Rate engine',v:'BBSY/AONIA + margin, rate reset schedules, interest rate cap/floor, hedge overlay.'},
+    {n:'Waterfall engine',v:'Senior → mezz → preferred equity → equity distribution logic — configurable per fund.'},
+    {n:'Covenant tracker',v:'LVR, ICR, DSCR — automated breach detection, waiver logging, cure period tracking.'},
+    {n:'Tech',v:'Python · pandas · numpy · scipy · dbt · Snowflake · Airflow · pytest'},
+  ],uses:['loan_positions_daily','interest_accrual_daily','waterfall_distributions','covenant_status']},
+  inv:{title:'Investor reporting engine (Priority 2)',items:[
+    {n:'Financial statements',v:'P&L, balance sheet, cash flow — fund and investor-level — auto-generated at period close.'},
+    {n:'NAV calculation',v:'Net asset value per unit per period — with 4-eyes approval and full audit trail.'},
+    {n:'Distribution notices',v:'Automated per-investor distribution calculation and branded notice generation.'},
+    {n:'IRR / MOIC',v:'Money-weighted and time-weighted returns — inception to date and period (scipy XIRR).'},
+    {n:'Statement generation',v:'Templafy / Python+WeasyPrint — branded PDFs from warehouse snapshot. Stored in Azure Blob.'},
+    {n:'Tech',v:'Snowflake · Power BI · Templafy · Power Pages · Azure Blob · Power Automate'},
+  ],uses:['investor_statement','distribution_notice','fund_nav','P&L']},
+  fund:{title:'Fund administration (Phase 2)',items:[
+    {n:'Unit registry',v:'Investor unit holding ledger — subscriptions, redemptions, transfers, splits.'},
+    {n:'Capital account',v:'Capital account per investor — contributions, distributions, carried interest.'},
+    {n:'Fee calculation',v:'Management fee, performance fee, hurdle — configurable per fund per class.'},
+    {n:'Tax reporting',v:'AMMA statements, AMIT attribution — integration with tax agent workflow.'},
+    {n:'KYC & onboarding',v:'Onfido / Frankie One digital ID — replaces manual paper AML processes.'},
+    {n:'Tech',v:'Mainstar / InvestCloud / Iress · Onfido · DocuSign · ComplyAdvantage'},
+  ],uses:['dim_investor','waterfall_distributions','AMMA_tax','unit_registry']},
+  treas:{title:'Treasury & compliance',items:[
+    {n:'Portfolio overview',v:'Live book total, WA rate, WA maturity, loan type and sector breakdown.'},
+    {n:'Maturity ladder',v:'Quarterly principal maturity profile — expected cashflows 12+ months.'},
+    {n:'Concentration limits',v:'Borrower, sector, geographic limits vs constitution and warehouse covenants.'},
+    {n:'ASIC compliance',v:'RG45 benchmarks, RG133 quarterly lodgements, AML/CTF, AUSTRAC reporting.'},
+    {n:'Funding facilities',v:'Warehouse utilisation across all facilities — headroom, expiry, covenants.'},
+    {n:'Tech',v:'Power BI (DirectQuery on Snowflake) · Compliance365 · ComplyAdvantage · Azure Monitor'},
+  ],uses:['portfolio_summary','covenant_status','RG45_benchmarks','audit_trail']},
+  know:{title:'Knowledge & operations',items:[
+    {n:'SharePoint intranet',v:'Per-team document libraries, news, approvals — replaces shared drives. Microsoft 365.'},
+    {n:'Confluence SOP library',v:'Step-by-step SOPs for every process — version-controlled, linked to Jira tasks.'},
+    {n:'Runbooks',v:'IT and ops runbooks — incident response, period-close checklist, system failover.'},
+    {n:'Knowledge search',v:'Microsoft Viva / Copilot search across all internal content and emails.'},
+    {n:'Tech',v:'SharePoint Online · Microsoft Teams · Confluence Cloud · Atlassian Jira · Loom'},
+  ],uses:['operational_SOPs','runbooks','compliance_procedures']},
+  pres:{title:'Presentation & delivery layer',items:[
+    {n:'Investor portal',v:'Power Pages · Azure AD B2C MFA · self-serve · each investor sees only their data.'},
+    {n:'Internal dashboards',v:'Power BI DirectQuery on Snowflake · live fund manager and treasury views.'},
+    {n:'Automated PDF/Excel',v:'Branded investor statements, board pack, distribution notices — zero manual assembly.'},
+    {n:'API feeds',v:'Structured data feeds to external systems — auditors, custodians, ASIC lodgement portals.'},
+    {n:'Tech',v:'Power Pages · Power BI · Power Automate · Azure Blob · WeasyPrint / Templafy'},
+  ],uses:['investor_portal','power_bi_dashboards','automated_reports']},
+  sec:{title:'Security & IAM',items:[
+    {n:'Identity',v:'Azure Active Directory — single identity for all internal and portal users. SSO across Microsoft 365.'},
+    {n:'MFA',v:'Multi-factor authentication enforced for all users — Microsoft Authenticator or hardware key.'},
+    {n:'RBAC',v:'Role-based access — credit analyst, ops, finance, investor. Least privilege principle enforced.'},
+    {n:'Zero trust',v:'Every request authenticated regardless of network location. Conditional Access policies.'},
+    {n:'DLP',v:'Data loss prevention — no investor data to personal email or USB. Sensitivity labels on all docs.'},
+    {n:'Tech',v:'Azure AD · Microsoft Defender · Conditional Access · Privileged Identity Management · Purview'},
+  ],uses:['all_modules']},
+  cloud:{title:'Cloud infrastructure',items:[
+    {n:'Platform',v:'Azure primary (aligns with Microsoft 365 ecosystem). AWS as option if Snowflake is hosted there.'},
+    {n:'DevOps',v:'Azure DevOps / GitHub — CI/CD for all code including dbt models, Python engine and portal.'},
+    {n:'Disaster recovery',v:'Geo-redundant storage · RTO 4hr · RPO 1hr — tested quarterly. Azure Paired Regions.'},
+    {n:'Cost governance',v:'Azure Cost Management — per-department tagging, budget alerts, reserved capacity.'},
+    {n:'Tech',v:'Azure (primary) · Terraform (IaC) · GitHub Actions · Azure Monitor · Key Vault · Azure Policy'},
+  ],uses:['all_modules']},
+  audit:{title:'Audit & logging',items:[
+    {n:'Immutable event log',v:'Every calculation, override, approval and access event written to Azure Immutable Blob. 7yr retention.'},
+    {n:'ASIC audit trail',v:'Full traceability from raw loan data to every investor statement line — for regulatory examination.'},
+    {n:'Period snapshots',v:'Locked, immutable Snowflake snapshots per reporting period — reproducible, auditable.'},
+    {n:'Access logging',v:'All user access, data exports and API calls logged with timestamp and user identity.'},
+    {n:'Tech',v:'Azure Immutable Blob · Snowflake Time Travel · Azure Monitor · Microsoft Purview'},
+  ],uses:['ASIC_examination','period_snapshots','access_logs']},
+};
+
+function archShow(k, el) {
+  const d = archData[k];
+  const panel = document.getElementById('arch-detail');
+  let html = `<div class="ad-title">${d.title}</div><div class="ad-grid">`;
+  d.items.forEach(i => { html += `<div class="ad-item"><div class="ad-label">${i.n}</div><div class="ad-val">${i.v}</div></div>`; });
+  html += '</div>';
+  if (d.uses && d.uses.length) {
+    html += `<div class="ad-tags">`;
+    d.uses.forEach(u => { html += `<span class="ad-tag">${u}</span>`; });
+    html += '</div>';
+  }
+  panel.innerHTML = html;
+  panel.classList.add('show');
+  document.querySelectorAll('.dbox').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ── Loan engine data ── */
+const loanData = {
+  senior:{p:'ld-type',t:'Senior debt — calculation logic',items:[
+    {n:'Day count convention',v:'Actual/365 — standard for Australian project finance. Count exact calendar days between payment dates.'},
+    {n:'Rate type',v:'Floating — BBSY + credit margin. Rate resets quarterly (or per loan agreement). Transitioning to AONIA.'},
+    {n:'Payment structure',v:'Principal + interest (P+I) or interest-only (IO) during construction, converting to P+I on completion.'},
+    {n:'Fee accrual',v:'Line fee on undrawn commitment (typically 0.5–1.0% p.a.) + establishment fee amortised over term.'},
+  ],tags:['loan_positions_daily','interest_accrual_daily','cashflow_schedule']},
+  mezz:{p:'ld-type',t:'Mezzanine — calculation logic',items:[
+    {n:'PIK interest',v:'Pay-in-Kind — interest capitalised to principal balance rather than paid in cash. Compounds the outstanding balance each period.'},
+    {n:'OID (Original Issue Discount)',v:'Difference between face value and issue price. Amortised to interest income using effective interest method per AASB 9.'},
+    {n:'Higher margin',v:'Typically BBSY + 5–8% reflecting subordinated position. Requires separate rate engine configuration.'},
+    {n:'Capitalisation frequency',v:'Usually monthly. PIK balance then accrues interest on itself — exponential growth requires precise daily modelling.'},
+  ],tags:['loan_positions_daily','interest_accrual_daily.pik_accrual']},
+  construction:{p:'ld-type',t:'Construction loan — calculation logic',items:[
+    {n:'Progressive drawdowns',v:'Multiple drawdown events against a single facility limit. Balance grows as construction milestones are reached.'},
+    {n:'Interest reserve fund',v:'Portion of facility reserved to capitalise interest during construction — common in residential development loans.'},
+    {n:'Milestone triggers',v:'Drawdown conditions (DA approval, slab, lock-up, completion) logged in loan_drawdown with purpose flag.'},
+    {n:'Conversion',v:'On practical completion, construction loan converts to term loan — rate and payment structure change.'},
+  ],tags:['loan_drawdown','cashflow_schedule','loan_positions_daily']},
+  prefequity:{p:'ld-type',t:'Preferred equity — calculation logic',items:[
+    {n:'Preferred return (hurdle)',v:'Fixed preferred return (e.g. 8% p.a.) paid to preferred equity investors before any common equity distribution.'},
+    {n:'Carried interest',v:'After hurdle, remaining returns split per waterfall — e.g. 20% carry to manager, 80% to investor.'},
+    {n:'Return of capital first',v:'Preferred equity receives capital back before common equity receives anything — critical waterfall ordering.'},
+    {n:'IRR-based hurdle',v:'Some structures use IRR hurdle rather than simple return — requires full cashflow XIRR calculation.'},
+  ],tags:['waterfall_distributions','fund_nav']},
+  cashflow:{p:'ld-calc',t:'Cashflow model',items:[
+    {n:'Amortisation schedule',v:'Generates full payment schedule from origination to maturity — principal, interest and fee cashflows per period.'},
+    {n:'Scheduled vs actual',v:'System stores both scheduled (contractual) and actual (received) cashflows — variance drives arrears classification.'},
+    {n:'Prepayment handling',v:'Full or partial prepayments reduce balance and recalculate future schedule. Break cost calculated if applicable.'},
+    {n:'Interest-only periods',v:'IO periods generate interest-only cashflows — principal balance stays flat until IO period ends.'},
+  ],tags:['cashflow_schedule','loan_positions_daily']},
+  accrual:{p:'ld-calc',t:'Accrual engine',items:[
+    {n:'Daily accrual formula',v:'daily_interest = outstanding_balance × all_in_rate / 365. Runs for every loan every calendar day.'},
+    {n:'Day count conventions',v:'Actual/365 (standard AU project finance) · 30/360 (some structured products) · Actual/360 (US-origin deals).'},
+    {n:'BBSY/AONIA rate resets',v:'Rate resets on contractual dates. Engine looks up rate_reset table for applicable base rate on each accrual day.'},
+    {n:'Effective interest method',v:'AASB 9 requires income recognition using effective interest rate — accounts for fees and OID in the yield.'},
+  ],tags:['interest_accrual_daily','income_recognised']},
+  rateengine:{p:'ld-calc',t:'Rate engine',items:[
+    {n:'BBSY to AONIA transition',v:'Australian market transitioning from BBSY to AONIA (Overnight Index Average). Engine handles both indexes.'},
+    {n:'Rate reset schedule',v:'Each loan has a reset frequency (monthly, quarterly). Engine fetches current rate from Refinitiv/Bloomberg on reset date.'},
+    {n:'Cap and floor',v:'Interest rate caps/floors overlay the base rate — e.g. all-in rate cannot exceed 12% regardless of BBSY movement.'},
+    {n:'Hedge accounting',v:'IRS positions reduce effective floating rate exposure. Hedge-adjusted rate used for NII reporting.'},
+  ],tags:['rate_reset','interest_accrual_daily.base_rate']},
+  covenants:{p:'ld-calc',t:'Covenant tracker',items:[
+    {n:'LVR (Loan-to-Value Ratio)',v:'Outstanding balance ÷ current valuation. Trigger typically 65–70% for senior debt. Requires current valuations.'},
+    {n:'ICR (Interest Coverage Ratio)',v:'Net operating income ÷ interest expense. Measures borrower ability to service interest — trigger typically 1.5x.'},
+    {n:'DSCR (Debt Service Coverage)',v:'Net operating income ÷ total debt service (P+I). Stricter than ICR — typically 1.25x minimum.'},
+    {n:'Breach workflow',v:'Breach detected → email alert to credit team → waiver log entry → cure period countdown → escalation.'},
+  ],tags:['covenant_status','treasury_dashboard','RG45_benchmark_7']},
+  positions:{p:'ld-agg',t:'Portfolio positions',items:[
+    {n:'Weighted average rate',v:'Sum(balance × rate) / Sum(balance) — reflects true average yield across the book at any point.'},
+    {n:'Weighted average maturity',v:'Sum(balance × remaining_years) / Sum(balance) — key metric for duration and refinancing risk.'},
+    {n:'Concentration analysis',v:'Single borrower, sector and geographic split — compared to mandate limits from fund constitution.'},
+    {n:'Construction loan %',v:'Construction loans as % of total book — monitored against warehouse facility covenant (typically < 25%).'},
+  ],tags:['portfolio_summary','treasury_dashboard']},
+  waterfall:{p:'ld-agg',t:'Waterfall engine',items:[
+    {n:'Distribution order',v:'1. Operating expenses → 2. Senior debt service → 3. Debt service reserve → 4. Mezz interest → 5. Mezz principal → 6. Preferred equity return → 7. Common equity'},
+    {n:'Configurable per fund',v:'Each fund has its own waterfall_config stored as JSON in dim_fund. Engine reads config at runtime — no hard-coding.'},
+    {n:'Per-investor allocation',v:'After waterfall, net income allocated to investors pro-rata by units held. Management and performance fees deducted.'},
+    {n:'Catch-up and carry',v:'After preferred return is met, remaining returns split per carry arrangement. Accumulated deficit tracked.'},
+  ],tags:['waterfall_distributions','distribution_notice']},
+  performance:{p:'ld-agg',t:'Performance metrics',items:[
+    {n:'IRR (XIRR method)',v:'scipy.optimize.xirr on all investor cashflows (contributions negative, distributions positive). Inception-to-date.'},
+    {n:'MOIC (Multiple on Invested Capital)',v:'(Total distributions to date + current holding value) / total capital invested. Simple multiple.'},
+    {n:'DPI (Distributions to Paid-In)',v:'Total distributions / total capital called. DPI = 1.0x means all capital has been returned.'},
+    {n:'TWR vs MWR',v:'Time-weighted return removes timing effects — use for benchmarking. MWR = IRR — use for investor-specific reporting.'},
+  ],tags:['fund_nav','investor_statement.irr']},
+};
+
+function loanShow(k, el) {
+  const d = loanData[k];
+  const panel = document.getElementById(d.p);
+  let html = `<div class="cd-title">${d.t}</div><div class="cd-grid">`;
+  d.items.forEach(i => { html += `<div class="cd-item"><div class="cd-name">${i.n}</div><div class="cd-val">${i.v}</div></div>`; });
+  html += '</div>';
+  if (d.tags && d.tags.length) { html += `<div class="cd-tags">`; d.tags.forEach(t => { html += `<span class="cd-tag">${t}</span>`; }); html += '</div>'; }
+  panel.innerHTML = html; panel.classList.add('show');
+  // clear only siblings in the same layer
+  el.closest('.layer-body').querySelectorAll('.mcard').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ── Investor reporting data ── */
+const invData = {
+  in_pos:{p:'id-inputs',t:'Input — loan_positions_daily',items:[
+    {n:'closing_balance',v:'Outstanding principal balance per loan per day. Sum = gross book = main asset on balance sheet.'},
+    {n:'accrued_interest_balance',v:'Unpaid accrued interest — sits on balance sheet as a separate asset until paid.'},
+    {n:'income_recognised',v:'Effective interest method income (from interest_accrual_daily) — what flows to the P&L per AASB 9.'},
+    {n:'Scheduled vs actual variance',v:'Variance from cashflow_schedule drives arrears reporting and credit loss provision.'},
+  ],tags:['fund_nav','portfolio_summary','P&L','balance_sheet']},
+  in_wf:{p:'id-inputs',t:'Input — waterfall_distributions',items:[
+    {n:'income_entitlement',v:"Each investor's gross income share — pro-rata by units held after waterfall is applied."},
+    {n:'management_fee',v:"Fee deducted from each investor's share — based on fund_nav × fee_rate × investor_units / total_units."},
+    {n:'net_distribution',v:'The actual amount paid or reinvested — the investor-facing figure on the statement.'},
+    {n:'distribution_per_unit',v:'CPU (cents per unit) — the headline number quoted in distribution notices.'},
+  ],tags:['investor_statement','distribution_notice','AMMA_tax_statement']},
+  in_reg:{p:'id-inputs',t:'Input — dim_investor (fund register)',items:[
+    {n:'units_held',v:'Current units on register per investor. Updated after each subscription, redemption or reinvestment.'},
+    {n:'distribution_election',v:'Cash or reinvestment — determines whether net_distribution flows to bank or creates new units.'},
+    {n:'investor_class',v:'Wholesale / Retail / Institutional — may affect fee rates, minimum investment, reporting obligations.'},
+    {n:'join_date',v:"Inception date for this investor's IRR calculation — all cashflows since this date feed scipy.xirr."},
+  ],tags:['waterfall_distributions','investor_statement']},
+  in_val:{p:'id-inputs',t:'Input — valuations',items:[
+    {n:'External fair values',v:'Independent property/asset valuations — typically quarterly. Loaded via CSV or API from valuation firm.'},
+    {n:'LVR recalculation',v:'New valuations trigger LVR recalculation for each loan — may trigger covenant test and alert.'},
+    {n:'NAV impact',v:'Fair value uplift or writedown flows through to gross_asset_value and therefore NAV per unit.'},
+    {n:'Valuation methodology',v:'Independent external appraiser. Methodology disclosed to investors per RG45 Benchmark requirements.'},
+  ],tags:['fund_nav.gross_asset_value','covenant_status.lvr']},
+  nav:{p:'id-calcs',t:'NAV calculation',items:[
+    {n:'Gross Asset Value (GAV)',v:'SUM(loan_positions_daily.closing_balance) + accrued interest receivable + cash at bank + other assets.'},
+    {n:'Total liabilities',v:'Warehouse facility drawn balance + accrued management fees + distributions payable + other creditors.'},
+    {n:'Net Asset Value',v:'GAV − liabilities = fund_nav.net_asset_value — the headline fund size used in all investor reporting.'},
+    {n:'NAV per unit',v:'NAV ÷ fund_nav.units_on_issue — the unit price. Locked after 4-eyes approval. Cannot be edited after lock.'},
+  ],tags:['fund_nav','investor_statement','ASIC_unit_pricing']},
+  returns:{p:'id-calcs',t:'Return metrics calculation',items:[
+    {n:'IRR (XIRR method)',v:"scipy.xirr called on complete cashflow history per investor from join_date. Contributions negative, distributions positive, current value positive at calculation date."},
+    {n:'MOIC',v:'(Total distributions to date + current holding value) / total capital invested. Simple multiple — most intuitive for investors.'},
+    {n:'DPI (Distributions to Paid-In)',v:"Total distributions / total capital called. DPI = 1.0x means all capital has been returned in cash."},
+    {n:'TWR vs MWR',v:"Time-weighted return removes timing effects — use for benchmarking. MWR = IRR — use for investor-specific return reporting."},
+  ],tags:['investor_statement.irr','investor_statement.moic']},
+  stmts:{p:'id-calcs',t:'Financial statements',items:[
+    {n:'P&L — Interest income',v:'SUM(interest_accrual_daily.income_recognised) per fund per period. Effective interest method per AASB 9.'},
+    {n:'P&L — Fee income',v:'Line fees + commitment fees + establishment fee amortisation from portfolio_summary.total_fees.'},
+    {n:'Balance sheet — Loans',v:'SUM(loan_positions_daily.closing_balance) at period end. Separate line for accrued interest receivable.'},
+    {n:'Cash flow statement',v:'Operating: interest + fees received. Investing: loan drawdowns and repayments. Financing: subscriptions, redemptions, distributions.'},
+  ],tags:['P&L','balance_sheet','cash_flow_statement']},
+  dist:{p:'id-calcs',t:'Distribution calculation',items:[
+    {n:'Income available',v:'Net income after all expenses (management fee, performance fee, credit provisions) = distributable amount.'},
+    {n:'Per-unit allocation',v:'Distributable amount / units_on_issue = CPU (cents per unit). Each investor gets CPU × their units_held.'},
+    {n:'Tax components',v:'Distribution split into assessable income, tax-deferred, tax-free (capital gains discount). Required for AMMA statement.'},
+    {n:'Reinvestment processing',v:'For reinvesting investors: net_distribution / current NAV per unit = new units issued. Unit register updated same day.'},
+  ],tags:['waterfall_distributions.distribution_per_unit','distribution_notice','AMMA_tax_statement']},
+};
+
+function invShow(k, el) {
+  const d = invData[k];
+  const panel = document.getElementById(d.p);
+  let html = `<div class="cd-title">${d.t}</div><div class="cd-grid">`;
+  d.items.forEach(i => { html += `<div class="cd-item"><div class="cd-name">${i.n}</div><div class="cd-val">${i.v}</div></div>`; });
+  html += '</div>';
+  if (d.tags && d.tags.length) { html += `<div class="cd-tags">`; d.tags.forEach(t => { html += `<span class="cd-tag">${t}</span>`; }); html += '</div>'; }
+  panel.innerHTML = html; panel.classList.add('show');
+  el.closest('.layer-body').querySelectorAll('.mcard').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+</script>
 </body>
 </html>
